@@ -174,12 +174,12 @@ def unit_vector(vector):
 def angle_between(v1, v2):
     """ Returns the angle in radians between vectors 'v1' and 'v2'::
 
-            >>> angle_between((1, 0, 0), (0, 1, 0))
-            1.5707963267948966
-            >>> angle_between((1, 0, 0), (1, 0, 0))
-            0.0
-            >>> angle_between((1, 0, 0), (-1, 0, 0))
-            3.141592653589793
+    # >>> angle_between((1, 0, 0), (0, 1, 0))
+    # 1.5707963267948966
+    # >>> angle_between((1, 0, 0), (1, 0, 0))
+    # 0.0
+    # >>> angle_between((1, 0, 0), (-1, 0, 0))
+    # 3.141592653589793
     """
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
@@ -297,11 +297,11 @@ class CHECK:
     This class test the normal ending of a GROMACS simulation using the log file.
     E.g. 
     let say that we have the md.log of a simulation
-    CHECK = CHECK('md.log')
-    if CHECK.performance:
-        #The simulation had a good ending
-    else:
-        #The simulations crashed.
+    # CHECK = CHECK('md.log')
+    # if CHECK.performance:
+    #     #The simulation had a good ending
+    # else:
+    #     #The simulations crashed.
     """
 
     def __init__(self, logfile, lisfile = None):
@@ -389,14 +389,15 @@ def checkrun(user = '$USER', partition = 'deflt'):
     return [int(item) for item in stdout]
 
 def job_launch_list(job_path_list, shell="sbatch"):
-    """Same as job_launch, but the path to the jobs are provided
-
+    """
+    Same as job_launch, but the path to the jobs are provided
+    
     Args:
-        job_path_list (_type_): _description_
-        shell (str, optional): _description_. Defaults to "sbatch".
+    job_path_list (_type_): _description_
+    shell (str, optional): _description_. Defaults to "sbatch".
 
     Returns:
-        _type_: _description_
+    _type_: _description_
     """
     cwd = os.getcwd()
     JOBIDs = []
@@ -493,7 +494,7 @@ def job_launch(shell="sbatch", script_name = "job.sh"):
         DESCRIPTION. The default is "job.sh".
         If a regular expresion is provided
         then the function will execute the first ordered alphabetically. E.g:
-            job.* was provided and there job.sh and job.bash. Then it will use job.bash.
+        job.* was provided and there job.sh and job.bash. Then it will use job.bash.
 
 
     Returns
@@ -593,22 +594,22 @@ def rm(pattern, r = False):
                 
 def cp(src, dest, r = False):
     """
-    
     This function makes use of the possible multiple CPU of the machine.
+
     Parameters
     ----------
     src : TYPE: string
         DESCRIPTION:
-            Source Path to a directory or a file. regular expresion are accepted. The librery glob is used for that.
+        Source Path to a directory or a file. regular expresion are accepted. The librery glob is used for that.
     dest : TYPE: string
         DESCRIPTION:
-            Destination Path
+        Destination Path
     r : TYPE, optional
         DESCRIPTION. The default is False:
-            If True, Also directories will be copy. If not, and a directory was
-            given as src, a Raise Exception will be printed
-            Another Raise Exception will be printed if the destination path doesn't
-            exist.
+        If True, Also directories will be copy. If not, and a directory was
+        given as src, a Raise Exception will be printed
+        Another Raise Exception will be printed if the destination path doesn't
+        exist.
 
     Returns
     -------

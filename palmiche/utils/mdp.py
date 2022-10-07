@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import copy, warnings
 import numpy as np
 
@@ -11,10 +10,11 @@ def find_nearest(array, value):
     return idx
 
 class MDP:
-    """This is a wrap around the mdp file of GROMACS, the units are the used by GROMACS:
-        time: ps
-        distance: nm
-        etc...
+    """
+    This is a wrap around the mdp file of GROMACS, the units are the used by GROMACS:
+    time: ps
+    distance: nm
+    etc...
     """
     def __init__(self, type = 'production', **user_keywords) -> None:
         self.type = type
@@ -348,22 +348,22 @@ class MDP:
         the end of the simulation. For all the groups will be used 'single' as type of annealing and will be
         used the same temperatures.
         E.g:
-            NumGroups = 2
-            temp = [200,210,220]
-            self.time = 25000 ps
-            heat_fraction = 0.25
+        NumGroups = 2
+        temp = [200,210,220]
+        self.time = 25000 ps
+        heat_fraction = 0.25
 
         OUT:
-            annealing = 'single single'
-            annealing_npoints = '5 5'
-            annealing_time = '0 3125 6250 15625 25000 0 3125 6250 15625 25000'
-            annealing_temp = '200 210 220 210 200 200 210 220 210 200'
+        annealing = 'single single'
+        annealing_npoints = '5 5'
+        annealing_time = '0 3125 6250 15625 25000 0 3125 6250 15625 25000'
+        annealing_temp = '200 210 220 210 200 200 210 220 210 200'
 
 
         Args:
-            NumbGroups (int): The number of temperature couplead and to be used in the Annealing
-            temp (list): List of temperature to use the
-            heat_fraction (float, optional): How much of the simulation time will be spent in the heating process. Defaults to 0.25.
+        NumbGroups (int): The number of temperature couplead and to be used in the Annealing
+        temp (list): List of temperature to use the
+        heat_fraction (float, optional): How much of the simulation time will be spent in the heating process. Defaults to 0.25.
         """
         # In case that asked, set nstenergy to nstcalcenergy value
         if nstenergy_same_as_nstcalcenergy:
@@ -404,22 +404,22 @@ class MDP:
 
         @@@@@@@ Mejorar el ejemplo@@@@@@@
         E.g:
-            NumGroups = 2
-            temp = [200,210,220]
-            self.time = 25000 ps
-            heat_fraction = 0.25
+        NumGroups = 2
+        temp = [200,210,220]
+        self.time = 25000 ps
+        heat_fraction = 0.25
 
         OUT:
-            annealing = 'single single'
-            annealing_npoints = '5 5'
-            annealing_time = '0 3125 6250 15625 25000 0 3125 6250 15625 25000'
-            annealing_temp = '200 210 220 210 200 200 210 220 210 200'
+        annealing = 'single single'
+        annealing_npoints = '5 5'
+        annealing_time = '0 3125 6250 15625 25000 0 3125 6250 15625 25000'
+        annealing_temp = '200 210 220 210 200 200 210 220 210 200'
 
 
         Args:
-            NumbGroups (int): The number of temperature couplead and to be used in the Annealing
-            temp (list): List of temperature to use the
-            heat_fraction (float, optional): How much of the simulation time will be spent in the heating process. Defaults to 0.25.
+        NumbGroups (int): The number of temperature couplead and to be used in the Annealing
+        temp (list): List of temperature to use the
+        heat_fraction (float, optional): How much of the simulation time will be spent in the heating process. Defaults to 0.25.
         """
         temp_list = np.array(temp_list)
         annealing ={
@@ -458,34 +458,34 @@ class MDP:
         Generate the annealing section of the MDP.
         The annealing strategy is the following:
 
-        T3             _____
-                       |
-        T2        ____|
-                 |       
-        T1  ____|
-        This is used as input of PandeWeights method
+        # T3             _____
+        #                |
+        # T2        ____|
+        #          |       
+        # T1  ____|
 
+        This is used as input of PandeWeights method
         Heat the system during heat_fraction*self.time at the begining and aftter cold the system till
         the end of the simulation. For all the groups will be used 'single' as type of annealing and will be
         used the same temperatures.
         @@@@Mejorar el ejemplo, cambiar la variable temp por temperatures
         E.g:
-            NumGroups = 2
-            temp = [200,210,220]
-            self.time = 25000 ps
-            heat_fraction = 0.25
+        NumGroups = 2
+        temp = [200,210,220]
+        self.time = 25000 ps
+        heat_fraction = 0.25
 
         OUT:
-            annealing = 'single single'
-            annealing_npoints = '5 5'
-            annealing_time = '0 3125 6250 15625 25000 0 3125 6250 15625 25000'
-            annealing_temp = '200 210 220 210 200 200 210 220 210 200'
+        annealing = 'single single'
+        annealing_npoints = '5 5'
+        annealing_time = '0 3125 6250 15625 25000 0 3125 6250 15625 25000'
+        annealing_temp = '200 210 220 210 200 200 210 220 210 200'
 
 
         Args:
-            NumbGroups (int): The number of temperature couplead and to be used in the Annealing
-            temp (list): List of temperature to use the
-            heat_fraction (float, optional): How much of the simulation time will be spent in the heating process. Defaults to 0.25.
+        NumbGroups (int): The number of temperature couplead and to be used in the Annealing
+        temp (list): List of temperature to use the
+        heat_fraction (float, optional): How much of the simulation time will be spent in the heating process. Defaults to 0.25.
         """
         temp = np.array(temp)
         annealing ={
