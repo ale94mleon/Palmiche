@@ -4,7 +4,6 @@
 from palmiche.utils import tools, mdp, xvg, markov
 from palmiche.simultemp import weights
 import os
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import socket

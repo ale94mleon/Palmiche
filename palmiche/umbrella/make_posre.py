@@ -1,17 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-===============================================================================
-Created on    : Thu Jun 24 22:01:59 2021
-Author        : Alejandro Martínez León
-Mail          : [alejandro.martinezleon@uni-saarland.de, ale94mleon@gmail.com]
-Affiliation   : Jochen Hub's Biophysics Group
-Affiliation   : Faculty of NS, University of Saarland, Saarbrücken, Germany
-===============================================================================
-DESCRIPTION   :Make flat bottom potential GROMACS itp file
-DEPENDENCIES  :os, tools, gro_reader, pdb_reader
-===============================================================================
-"""
+
 from palmiche.utils import tools, pdb, gro
 import os
 

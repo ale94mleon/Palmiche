@@ -2,10 +2,13 @@ Metadata-Version: 2.1
 Name: palmiche
 Version: 0.0.0
 Summary: A python package for automation of MD simulations
-Home-page: https://gitlab.com/md_tools/palmiche
+Home-page: https://github.com/ale94mleon/palmiche
 Author: Alejandro Martínez León
 Author-email: ale94mleon@gmail.com
 License: Apache License 2.0
+Project-URL: Discussions, https://github.com/ale94mleon/palmiche/discussions
+Project-URL: Documentation, https://palmiche.readthedocs.io/en/latest/
+Project-URL: Issues, https://github.com/ale94mleon/palmiche/issues
 Keywords: science,chemistry,biology
 Platform: linux
 Classifier: Development Status :: 4 - Beta
@@ -39,15 +42,18 @@ Description
 
 This package is a product of my PhD scripting needs.
 It is not meant to be (for now) a proper python package with as
-lest as possible bugs and reaching compatibility in a lot of ecosystems. However, I continually updating it and making more and more clear documentation,
-therefore you could find some inspiration on my code to create your own scripts (as well as I did in many other codes to create palmiche).
+few bugs as possible and reaching compatibility in a lot of ecosystems.
+However, I am continually updating it and making more and more clear documentation,
+therefore you could find some inspiration on my code to create your own scripts,
+(as well as I did on many other codes to create Palmiche).
 
-Nevertheless, all your ideas and suggestions are very welcome and for sure i will take them into account to improve palmiche.
+Nevertheless, all your ideas and suggestions are very welcome and for sure i will take them into account to improve Palmiche.
 
 Why for?
 ~~~~~~~~
 
-**palmiche** is a group of scripts that could be used for Molecular Dynamic simulations (launch and analysis), docking and other chemoinformatic operations. The idea is automate the whole pipeline and improve productivity and transferability.  
+**Palmiche** is a group of scripts that could be used for Molecular Dynamic simulations (launch and analysis), docking and other chemoinformatic operations.
+The idea is automate the whole pipeline and improve productivity and transferability.  
 
 Documentation
 -------------
@@ -62,9 +68,9 @@ If you have found a bug, please open an issue on the `GitHub Issues <https://git
 Discussion
 ----------
 
-If you have questions on how to use **palmiche**, or if you want to give feedback or share ideas and new features, please head to the `GitHub Discussions <https://github.com/ale94mleon/palmiche/discussions>`_.
+If you have questions on how to use **Palmiche**, or if you want to give feedback or share ideas and new features, please head to the `GitHub Discussions <https://github.com/ale94mleon/palmiche/discussions>`_.
 
-Citing **palmiche**
+Citing **Palmiche**
 -------------------
 
 Please refer to the `citation page <https://palmiche.readthedocs.io/en/latest/source/citations.html>`__ on the documentation.
@@ -72,6 +78,6 @@ Please refer to the `citation page <https://palmiche.readthedocs.io/en/latest/so
 ..  |logo|  image:: https://github.com/ale94mleon/palmiche/blob/main/logo/logo.jpg?raw=true
     :target: https://github.com/ale94mleon/palmiche/
     :alt: logo
-..  |docs|  image:: https://readthedocs.org/projects/palmiche/badge/?version=latest
+.. |docs| image:: https://readthedocs.org/projects/palmiche/badge/?version=latest
     :target: https://palmiche.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation
+    :alt: Documentation Status

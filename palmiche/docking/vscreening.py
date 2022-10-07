@@ -8,10 +8,8 @@ from rdkit.Chem import AllChem
 from rdkit.Chem import Descriptors
 from rdkit.Chem import SaltRemover
 from rdkit.Chem import rdmolops
-from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
-from IPython.display import display, SVG
 import pubchempy as pcp
 import multiprocessing as mp
 from datetime import datetime
