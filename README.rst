@@ -47,6 +47,7 @@ Please refer to the `citation page <https://palmiche.readthedocs.io/en/latest/so
 ..  |logo|  image:: https://github.com/ale94mleon/palmiche/blob/main/logo/logo.jpg?raw=true
     :target: https://github.com/ale94mleon/palmiche/
     :alt: logo
-..  |docs|  image:: https://readthedocs.org/projects/palmiche/badge/?version=latest
-    :target: https://moldrug.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation
+
+.. |docs| image:: https://readthedocs.org/projects/palmiche/badge/?version=latest
+    :target: https://palmiche.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
