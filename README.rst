@@ -14,7 +14,7 @@ Description
 
 This package is a product of my PhD scripting needs.
 It is not meant to be (for now) a proper python package with as
-lest as possible bugs and reaching compatibility in a lot of ecosystems. However, I continually updating it and making more and more clear documentation,
+few bugs as possible and reaching compatibility in a lot of ecosystems. However, I continually updating it and making more and more clear documentation,
 therefore you could find some inspiration on my code to create your own scripts (as well as I did in many other codes to create palmiche).
 
 Nevertheless, all your ideas and suggestions are very welcome and for sure i will take them into account to improve palmiche.
