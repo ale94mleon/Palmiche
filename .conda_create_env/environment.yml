@@ -26,6 +26,7 @@ dependencies:
     - prolif
     - scipy
     - rdkit
+    - seaborn
     - pytest
     - recommonmark
     - sphinx_rtd_theme
