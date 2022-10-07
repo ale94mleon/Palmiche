@@ -1,0 +1,70 @@
+#include "cromer-mann-defs.itp"
+
+[ scattering_types ]
+; name ftype scattering_parameters  ; mass (for validation)
+Br        1  CROMER_MANN_Br_minus ;    79.9
+C         1  CROMER_MANN_C        ;   12.01
+CA        1  CROMER_MANN_C        ;   12.01
+CB        1  CROMER_MANN_C        ;   12.01
+CC        1  CROMER_MANN_C        ;   12.01
+CK        1  CROMER_MANN_C        ;   12.01
+CM        1  CROMER_MANN_C        ;   12.01
+CN        1  CROMER_MANN_C        ;   12.01
+CQ        1  CROMER_MANN_C        ;   12.01
+CR        1  CROMER_MANN_C        ;   12.01
+CT        1  CROMER_MANN_C        ;   12.01
+CV        1  CROMER_MANN_C        ;   12.01
+CW        1  CROMER_MANN_C        ;   12.01
+C*        1  CROMER_MANN_C        ;   12.01
+C0        1  CROMER_MANN_Ca_2plus ;   40.08
+F         1  CROMER_MANN_F_minus  ;      19
+H         1  CROMER_MANN_H        ;   1.008
+HC        1  CROMER_MANN_H        ;   1.008
+H1        1  CROMER_MANN_H        ;   1.008
+H2        1  CROMER_MANN_H        ;   1.008
+H3        1  CROMER_MANN_H        ;   1.008
+HA        1  CROMER_MANN_H        ;   1.008
+H4        1  CROMER_MANN_H        ;   1.008
+H5        1  CROMER_MANN_H        ;   1.008
+HO        1  CROMER_MANN_H        ;   1.008
+HS        1  CROMER_MANN_H        ;   1.008
+HW        1  CROMER_MANN_H        ;   1.008
+HP        1  CROMER_MANN_H        ;   1.008
+I         1  CROMER_MANN_I_minus  ;   126.9
+Cl        1  CROMER_MANN_Cl_minus ;   35.45
+Na        1  CROMER_MANN_Na_plus  ;   22.99
+; IB                              ;     131
+MG        1  CROMER_MANN_Mg_2plus ;  24.305
+N         1  CROMER_MANN_N        ;   14.01
+NA        1  CROMER_MANN_N        ;   14.01
+NB        1  CROMER_MANN_N        ;   14.01
+NC        1  CROMER_MANN_N        ;   14.01
+N2        1  CROMER_MANN_N        ;   14.01
+N3        1  CROMER_MANN_N        ;   14.01
+N*        1  CROMER_MANN_N        ;   14.01
+O         1  CROMER_MANN_O        ;      16
+OW        1  CROMER_MANN_O        ;      16
+OH        1  CROMER_MANN_O        ;      16
+OS        1  CROMER_MANN_O        ;      16
+O2        1  CROMER_MANN_O        ;      16
+P         1  CROMER_MANN_P         ;   30.97
+S         1  CROMER_MANN_S         ;   32.06
+SH        1  CROMER_MANN_S         ;   32.06
+CU        1  CROMER_MANN_Cu        ;   63.55
+FE        1  CROMER_MANN_Fe        ;      55
+K         1  CROMER_MANN_K_plus    ;    39.1
+Rb        1  CROMER_MANN_Rb_plus   ;   85.47
+Cs        1  CROMER_MANN_Cs_plus   ;  132.91
+OW_spc    1  CROMER_MANN_Owat      ;  15.9994
+HW_spc    1  CROMER_MANN_Hwat      ;   1.008
+Li        1  CROMER_MANN_Li_plus   ;    6.94
+Zn        1  CROMER_MANN_Zn_2plus  ;    65.4
+HW_tip4pew  1  CROMER_MANN_Hwat       ;   1.008
+OW_tip4pew  1  CROMER_MANN_Owat       ;      16
+HW_tip4p  1  CROMER_MANN_Hwat         ;   1.008
+OW_tip4p  1  CROMER_MANN_Owat         ;      16
+HW_tip5p  1  CROMER_MANN_Hwat         ;   1.008
+OW_tip5p  1  CROMER_MANN_Owat         ;      16
+; MW        1  CROMER_MANN_NULL        ;       0
+; MCH3      1  CROMER_MANN_NULL        ;       0
+; MNH3      1  CROMER_MANN_NULL        ;       0

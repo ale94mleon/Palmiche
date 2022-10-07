@@ -1,0 +1,10 @@
+*.pyc
+__pycache__
+.vscode
+.pytest_cache
+.ipynb_checkpoints
+.ideas
+.idea
+examples
+simutemp/example
+simutemp/small
