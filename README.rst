@@ -47,7 +47,7 @@ Citing **Palmiche**
 
 Please refer to the `citation page <https://palmiche.readthedocs.io/en/latest/source/citations.html>`__ on the documentation.
 
-..  |logo|  image:: https://github.com/ale94mleon/palmiche/blob/main/logo/logo.jpg?raw=true
+..  |logo|  image:: https://github.com/ale94mleon/palmiche/blob/main/logo/logo.png?raw=true
     :target: https://github.com/ale94mleon/palmiche/
     :alt: logo
 .. |docs| image:: https://readthedocs.org/projects/palmiche/badge/?version=latest
