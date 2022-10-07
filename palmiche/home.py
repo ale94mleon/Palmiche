@@ -1,17 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-===============================================================================
-Created on    : Fri Sep  3 15:18:16 2021
-Author        : Alejandro Martínez León
-Mail          : [alejandro.martinezleon@uni-saarland.de, ale94mleon@gmail.com]
-Affiliation   : Jochen Hub's Biophysics Group
-Affiliation   : Faculty of NS, University of Saarland, Saarbrücken, Germany
-===============================================================================
-DESCRIPTION   :
-DEPENDENCIES  :
-===============================================================================
-"""
 
 import palmiche
 import os

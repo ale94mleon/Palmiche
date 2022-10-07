@@ -1,22 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-===============================================================================
-Created on    : 2020-2023
-Author        : Alejandro Martínez León
-Mail          : [alejandro.martinezleon@uni-saarland.de, ale94mleon@gmail.com]
-Affiliation   : Jochen Hub's Biophysics Group
-Affiliation   : Faculty of NS, University of Saarland, Saarbrücken, Germany
-===============================================================================
-DESCRIPTION   :
-DEPENDENCIES  :
-===============================================================================
-"""
 
 import tempfile, os, tqdm, pickle, json
-
 from openbabel import openbabel as ob
-
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import Descriptors

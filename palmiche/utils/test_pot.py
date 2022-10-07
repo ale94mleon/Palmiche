@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from palmiche.utils import xvg, potentials
 import matplotlib.pyplot as plt
 import numpy as np

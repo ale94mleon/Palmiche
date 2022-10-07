@@ -69,24 +69,21 @@ def RSS(data, AlignPoint, ref_index_data = 0, NumbPoints = None, InterpolationKi
 
     Returns:
         _type_: _description_
-    Example:
-    In [1]: from palmiche.utils import tools, xvg
-    In [2]: d0 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord0_selected.xvg').data
-    In [3]: d1 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord1_selected.xvg').data
-    In [4]: d2 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord2_selected.xvg').data
-    In [5]: d3 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord3_selected.xvg').data
-    In [6]: d4 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord4_selected.xvg').data
-    In [7]: d5 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord5_selected.xvg').data
-    In [8]: data = [d0, d1, d2, d3, d4, d5]
-    In [9]: AlignPoint = 4.5
-    In [10]: NumbPoints = 300
-    In [11]: print(tools.RSS(data,AlignPoint, NumbPoints = NumbPoints))
-    [0.0, 962.7853017103384, 4159.864180622066, 9456.312066256418, 2076.1281115807665, 4421.657283337928]
-
-
-
-    
     """
+    # Example:
+    # In [1]: from palmiche.utils import tools, xvg
+    # In [2]: d0 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord0_selected.xvg').data
+    # In [3]: d1 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord1_selected.xvg').data
+    # In [4]: d2 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord2_selected.xvg').data
+    # In [5]: d3 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord3_selected.xvg').data
+    # In [6]: d4 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord4_selected.xvg').data
+    # In [7]: d5 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord5_selected.xvg').data
+    # In [8]: data = [d0, d1, d2, d3, d4, d5]
+    # In [9]: AlignPoint = 4.5
+    # In [10]: NumbPoints = 300
+    # In [11]: print(tools.RSS(data,AlignPoint, NumbPoints = NumbPoints))
+    # [0.0, 962.7853017103384, 4159.864180622066, 9456.312066256418, 2076.1281115807665, 4421.657283337928]
+    
     # GEtting the number of points for the interpolation
     if not NumbPoints:
         NumbPoints = data[0].shape[0]

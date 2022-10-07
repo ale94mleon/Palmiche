@@ -1,16 +1,5 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-===============================================================================
-Created on    : Sun Dec 22 01:40:52 2019
-Author        : Alejandro Martínez León
-Mail          : [amleon@instec.cu, ale94mleon@gmail.com]
-Affiliation   : Chemical Systems Modeling Group,
-Affiliation   : Faculty of Radiochemistry, InSTEC-University of Havana, Cuba.
-===============================================================================
-DESCRIPTION   :
-DEPENDENCIES  :
-===============================================================================
-"""
 
 import glob as glob
 import multiprocessing as mp

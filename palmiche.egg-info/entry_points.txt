@@ -1,0 +1,2 @@
+[console_scripts]
+gmxtrjconv = palmiche.utils.gmxtrjconv:main

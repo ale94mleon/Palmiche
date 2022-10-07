@@ -1,4 +1,4 @@
-name: moldrug
+name: palmiche_conda
 channels:
   - conda-forge
   - anaconda

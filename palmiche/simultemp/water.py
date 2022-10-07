@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from palmiche.utils import tools, mdp, xvg, markov
 from palmiche.simultemp import weights
 import os
@@ -8,7 +11,7 @@ import socket
 
 
 def main(wd = './',
-        weights_method = 'PandeWeights', #'AleWeights', 'PandeWeights'
+        weights_method = 'PandeWeights', #'AleWeights', 'PandeWeights' esthetic
         EnergyType = 'Potential', # 'Total-Energy'
         heat_fraction = 0.25, # DEpendding on what weights_method is chosen heat_fraction or heating_time and constant_temp_time will be used
         heating_time = 100,
