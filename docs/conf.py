@@ -20,7 +20,7 @@ from jupyter_client import kernelspec
 
 # -- Project information -----------------------------------------------------
 
-project = 'palmiche'
+project = 'Palmiche'
 copyright = '2022, Alejandro Martínez León'
 author = 'Alejandro Martínez León'
 

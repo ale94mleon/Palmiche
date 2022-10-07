@@ -30,5 +30,5 @@ pip install
 
 .. code-block:: bash
 
-    # To get the version on develop (only posible alternative for now)
+    # To get the version on development (only posable alternative for now)
     pip install git+https://github.com/ale94mleon/palmiche.git@main
