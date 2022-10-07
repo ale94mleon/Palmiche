@@ -13,7 +13,7 @@ DEPENDENCIES  :
 ===============================================================================
 """
 
-from palmiche.tools import tools, pdb
+from palmiche.utils import tools, pdb
 import os, tempfile, argparse
 
 

@@ -13,9 +13,9 @@ DEPENDENCIES  :
 ===============================================================================
 """
 
-import palmiche.tools.pdb as pdb
-from palmiche.tools.assembleMD import fix_pdb
-import palmiche.tools.tools as tools
+import palmiche.utils.pdb as pdb
+from palmiche.utils.assembleMD import fix_pdb
+import palmiche.utils.tools as tools
 import os.path
 
     

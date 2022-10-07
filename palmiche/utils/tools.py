@@ -40,7 +40,7 @@ from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from scipy.cluster.vq import vq
 from scipy.interpolate import interp1d
-from palmiche.tools import xvg
+from palmiche.utils import xvg
 
 
 
@@ -70,7 +70,7 @@ def RSS(data, AlignPoint, ref_index_data = 0, NumbPoints = None, InterpolationKi
     Returns:
         _type_: _description_
     Example:
-    In [1]: from palmiche.tools import tools, xvg
+    In [1]: from palmiche.utils import tools, xvg
     In [2]: d0 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord0_selected.xvg').data
     In [3]: d1 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord1_selected.xvg').data
     In [4]: d2 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord2_selected.xvg').data

@@ -12,7 +12,7 @@ DESCRIPTION   :
 DEPENDENCIES  :
 ===============================================================================
 """
-from palmiche.tools import tools, xvg
+from palmiche.utils import tools, xvg
 import tempfile
 import os
 import tqdm

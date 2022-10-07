@@ -16,7 +16,7 @@ import glob as glob
 import multiprocessing as mp
 import os
 import numpy as np
-from palmiche.tools import tools
+from palmiche.utils import tools
 import tqdm
 
 #========Deffinitions of class and methosd to get the output of Vina===========

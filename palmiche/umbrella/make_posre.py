@@ -12,7 +12,7 @@ DESCRIPTION   :Make flat bottom potential GROMACS itp file
 DEPENDENCIES  :os, tools, gro_reader, pdb_reader
 ===============================================================================
 """
-from palmiche.tools import tools, pdb, gro
+from palmiche.utils import tools, pdb, gro
 import os
 
                 

@@ -19,7 +19,7 @@ nohup ./auto_umbrella.py >output.txt 2>&1 &
 """
 
 from palmiche.umbrella import  COM_distance, conf_windows
-from palmiche.tools import tools, mdp, jobsh, xvg, markov
+from palmiche.utils import tools, mdp, jobsh, xvg, markov
 from palmiche.simultemp import weights
 import os, datetime, tempfile, argparse, re, time
 import numpy as np

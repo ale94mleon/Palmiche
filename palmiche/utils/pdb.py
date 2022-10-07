@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from palmiche.tools import tools
+from palmiche.utils import tools
 from string import ascii_uppercase
 import numpy as np
 """

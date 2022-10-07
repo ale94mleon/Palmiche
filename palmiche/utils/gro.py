@@ -12,7 +12,7 @@ DESCRIPTION   :
 DEPENDENCIES  :
 ===============================================================================
 """
-from palmiche.tools import tools
+from palmiche.utils import tools
 import numpy as np
 
 class InputERROR(Exception):

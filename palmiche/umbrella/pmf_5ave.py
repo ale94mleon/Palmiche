@@ -13,7 +13,7 @@ DEPENDENCIES  :
 ===============================================================================
 """
 import re, os, tempfile, tqdm
-from palmiche.tools import tools, xvg
+from palmiche.utils import tools, xvg
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt

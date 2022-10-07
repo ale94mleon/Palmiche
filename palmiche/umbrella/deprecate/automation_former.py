@@ -19,7 +19,7 @@ nohup ./umbrella_tools/automation.py > results.data &
 """
 
 from palmiche.umbrella import templates, make_posre, COM_distance, conf_windows
-import palmiche.tools.tools as tools
+import palmiche.utils.tools as tools
 from palmiche import home
 import os, glob, time, datetime, tempfile, argparse
 
@@ -197,7 +197,7 @@ def main(input_path_dict,
     cwd = os.getcwd()
     start_datetime = datetime.datetime.now()
     output_path = os.path.abspath(output_path)
-    #!!!!!!!!here is where I should use palmiche.tools.gmxtrjconv.py when I will figured out what are the correct set of commands
+    #!!!!!!!!here is where I should use palmiche.utils.gmxtrjconv.py when I will figured out what are the correct set of commands
     
     #Generating the ligands name whit the chain information
     ligands = [f"LI{chain}" for chain in chains]

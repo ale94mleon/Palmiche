@@ -40,7 +40,7 @@ Discussion
 If you have questions on how to use **palmiche**, or if you want to give feedback or share ideas and new features, please head to the `GitHub Discussions <https://github.com/ale94mleon/palmiche/discussions>`_.
 
 Citing **palmiche**
-------------------
+-------------------
 
 Please refer to the `citation page <https://palmiche.readthedocs.io/en/latest/source/citations.html>`__ on the documentation.
 

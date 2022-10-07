@@ -114,7 +114,7 @@ class MARKOV:
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import seaborn as sns
-    from palmiche.tools import xvg
+    from palmiche.utils import xvg
     realization = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_P/7e27/sys_MMV007839_Cell_891_SP_param/windows/00001/production.xvg').data[:,1]
     # realization = [1,1,1,2,2,'B',4,4,8,8,55,47,'A', 'B', 'A']
     # realization = [1,1,1,2,2,4,4,8,8,55,47,5,5,1,1,2,3,10,12,13,13,13,13,15,15,45,47,48,47,45,46,49,48,47]

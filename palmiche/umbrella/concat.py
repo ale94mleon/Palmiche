@@ -13,7 +13,7 @@ DEPENDENCIES  :
 ===============================================================================
 """
 import os, re, tempfile, argparse
-from palmiche.tools import tools
+from palmiche.utils import tools
 import multiprocessing as mp
 import tqdm
 

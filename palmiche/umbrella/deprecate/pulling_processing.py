@@ -30,7 +30,7 @@ __usage__ = "setupUmbrella.py --disfile(-d) distance_file --interval1(-i1) main_
 
 import numpy as np
 import pandas as pd
-from tools import backoff
+from utils import backoff
 
  
 def readDistanceFile(distance_file):

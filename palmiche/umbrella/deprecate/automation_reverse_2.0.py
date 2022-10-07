@@ -22,7 +22,7 @@ nohup ./auto_umbrella.py >output.txt 2>&1 &
 
 
 from palmiche.umbrella import templates, COM_distance, conf_windows
-from palmiche.tools import tools, mdp
+from palmiche.utils import tools, mdp
 import os, glob, time, datetime, tempfile, argparse, re
 import numpy as np
 

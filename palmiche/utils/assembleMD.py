@@ -13,9 +13,9 @@ DEPENDENCIES  :
 ===============================================================================
 """
 import os
-from palmiche.tools import tools
-from palmiche.tools import pdb
-from palmiche.tools.pKa2pdb2gmx import pka2gmx
+from palmiche.utils import tools
+from palmiche.utils import pdb
+from palmiche.utils.pKa2pdb2gmx import pka2gmx
 from glob import glob
 import tempfile
 

@@ -12,7 +12,7 @@ DESCRIPTION   :
 DEPENDENCIES  :
 ===============================================================================
 """
-from palmiche.tools import tools
+from palmiche.utils import tools
 def wham():
     ligands = [0,1,2,3,4]
     number_windows = 87

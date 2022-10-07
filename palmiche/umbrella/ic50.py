@@ -14,7 +14,7 @@ DEPENDENCIES  :
 """
 from scipy import integrate
 import numpy as np
-from palmiche.tools import xvg, tools
+from palmiche.utils import xvg, tools
 import matplotlib.pyplot as plt
 
 

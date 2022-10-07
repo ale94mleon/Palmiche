@@ -13,7 +13,7 @@ DEPENDENCIES  :
 ===============================================================================
 """
 
-from palmiche.tools import tools
+from palmiche.utils import tools
 import os, glob
 import pandas as pd
 import numpy as np

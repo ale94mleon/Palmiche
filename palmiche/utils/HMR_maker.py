@@ -14,7 +14,7 @@ DEPENDENCIES  :
 """
 import os
 from glob import glob
-from palmiche.tools import tools, heavyh, mdp
+from palmiche.utils import tools, heavyh, mdp
 import matplotlib.pyplot as plt
 
 # class MDP:

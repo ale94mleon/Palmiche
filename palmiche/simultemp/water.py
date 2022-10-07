@@ -1,4 +1,4 @@
-from palmiche.tools import tools, mdp, xvg, markov
+from palmiche.utils import tools, mdp, xvg, markov
 from palmiche.simultemp import weights
 import os
 import pandas as pd

@@ -1,4 +1,4 @@
-from palmiche.tools import xvg, potentials
+from palmiche.utils import xvg, potentials
 import matplotlib.pyplot as plt
 import numpy as np
 orient_restrain_init = 30

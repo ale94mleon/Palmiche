@@ -14,7 +14,7 @@ DEPENDENCIES  :
 """
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-from palmiche.tools import tools, xvg
+from palmiche.utils import tools, xvg
 import argparse
 import multiprocessing as mp
 import os, re, tqdm

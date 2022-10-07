@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from palmiche.tools import tools
+from palmiche.utils import tools
 from glob import glob
 def wham(select_file_names = "coord[0-9]_selected.dat", OMP_NUM_THREADS = 12):
     select_file_names = sorted(glob(select_file_names))
