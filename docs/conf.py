@@ -30,7 +30,7 @@ author = 'Alejandro Martínez León'
 
 # -- General configuration ---------------------------------------------------
 
-github_doc_root = 'https://github.com/ale94mleon/moldrug/tree/main/docs'
+github_doc_root = 'https://github.com/ale94mleon/palmiche/tree/main/docs'
 needs_sphinx = '4.1.2'
 
 # Add any Sphinx extension module names here, as strings. They can be
