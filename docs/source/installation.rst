@@ -1,7 +1,7 @@
 Installation
 ============
 
-This package is not release on PyPi, but could be easily installed via pip directly from the `GitHub Repo <https://github.com/ale94mleon/palmiche/>`
+This package is not release on PyPi, but could be easily installed via pip directly from the `GitHub Repo <https://github.com/ale94mleon/palmiche/>`_.
 
 Via pip (standard)
 ------------------
