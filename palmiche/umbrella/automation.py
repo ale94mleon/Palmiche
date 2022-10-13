@@ -330,7 +330,7 @@ def main(input_path_dict,
         hostname = socket.gethostname()
         update_gpu = ''
         if hostname == 'smaug':
-            mdrun_opt = '-pin on -pinstride 1 -pinoffset 0 -gpu_id 0 -nice 19'
+            mdrun_opt = '-pin on -pinstride 1 -pinoffset 12 -gpu_id 1 -nice 19'# '-pin on -pinstride 1 -pinoffset 0 -gpu_id 0 -nice 19'
         else:
             mdrun_opt = '-pin on -pinstride 1 -pinoffset 0 -nice 19'
     else:
