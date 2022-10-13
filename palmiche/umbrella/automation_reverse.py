@@ -358,7 +358,7 @@ def main(input_path_dict,
         hostname = socket.gethostname()
         update_gpu = ''
         if hostname == 'smaug':
-            mdrun_opt = '-pin on -pinstride 1 -pinoffset 0 -gpu_id 0 -nice 19'
+            mdrun_opt = '-pin on -pinstride 1 -pinoffset 12 -gpu_id 1 -nice 19'# '-pin on -pinstride 1 -pinoffset 0 -gpu_id 0 -nice 19'
         else:
             mdrun_opt = '-pin on -pinstride 1 -pinoffset 0 -nice 19'
     else:
@@ -573,7 +573,7 @@ def main(input_path_dict,
                 f"gmx grompp -f pull.mdp -c pull_equilibration.gro -r pull_equilibration.gro -p {os.path.basename(input_path_dict['topol'])} -n {input_path_dict['ndx']} -o pull.tpr\n"\
                 f"gmx mdrun -nt {cpu} -cpi -stepout 5000 -v -deffnm pull -px pull_pullx -pf pull_pullf {mdrun_opt} {update_gpu} >& pull.lis\n"
             logfile_start_datetime_pull = 'pull_minimization.log'
-        
+
         else:
             build_GROMACS_section_pull=f"{str_simulated_tempering_alpha}\n"\
                 f"gmx grompp -f pull.mdp -c {input_path_dict['conf']} -r {input_path_dict['conf']} -p {os.path.basename(input_path_dict['topol'])} -n {input_path_dict['ndx']} -o pull.tpr\n"\
