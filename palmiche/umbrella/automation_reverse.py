@@ -567,9 +567,9 @@ def main(input_path_dict,
         if refine_init_pull:
             build_GROMACS_section_pull=f"{str_simulated_tempering_alpha}\n"\
                 f"gmx grompp -f pull_minimization.mdp -c {input_path_dict['conf']} -r {input_path_dict['conf']} -p {os.path.basename(input_path_dict['topol'])} -n {input_path_dict['ndx']} -o pull_minimization.tpr\n"\
-                f"gmx mdrun -nt {cpu} -cpi -stepout 5000 -v -deffnm pull_minimization -px pull_pullx -pf pull_pullf {mdrun_opt} >& pull_minimization.lis\n"\
+                f"gmx mdrun -nt {cpu} -cpi -stepout 5000 -v -deffnm pull_minimization -px pull_minimization_pullx -pf pull_minimization_pullf {mdrun_opt} >& pull_minimization.lis\n"\
                 f"gmx grompp -f pull_equilibration.mdp -c pull_minimization.gro -r pull_minimization.gro -p {os.path.basename(input_path_dict['topol'])} -n {input_path_dict['ndx']} -o pull_equilibration.tpr\n"\
-                f"gmx mdrun -nt {cpu} -cpi -stepout 5000 -v -deffnm pull_equilibration -px pull_pullx -pf pull_pullf {mdrun_opt} {update_gpu} >& pull_equilibration.lis\n"\
+                f"gmx mdrun -nt {cpu} -cpi -stepout 5000 -v -deffnm pull_equilibration -px pull_equilibration_pullx -pf pull_equilibration_pullf {mdrun_opt} {update_gpu} >& pull_equilibration.lis\n"\
                 f"gmx grompp -f pull.mdp -c pull_equilibration.gro -r pull_equilibration.gro -p {os.path.basename(input_path_dict['topol'])} -n {input_path_dict['ndx']} -o pull.tpr\n"\
                 f"gmx mdrun -nt {cpu} -cpi -stepout 5000 -v -deffnm pull -px pull_pullx -pf pull_pullf {mdrun_opt} {update_gpu} >& pull.lis\n"
             logfile_start_datetime_pull = 'pull_minimization.log'
