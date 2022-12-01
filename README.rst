@@ -22,7 +22,7 @@ therefore you could find some inspiration on my code to create your own scripts,
 Nevertheless, all your ideas and suggestions are very welcome and for sure I will take them into account to improve **Palmiche**.
 
 What for?
-~~~~~~~~
+~~~~~~~~~
 
 **Palmiche** is a group of scripts that could be used for Molecular Dynamic simulations (launch and analysis), docking and other chemoinformatic operations.
 The idea is automate the whole pipeline and improve productivity and transferability.
