@@ -83,7 +83,7 @@ def RSS(data, AlignPoint, ref_index_data = 0, NumbPoints = None, InterpolationKi
     # In [10]: NumbPoints = 300
     # In [11]: print(tools.RSS(data,AlignPoint, NumbPoints = NumbPoints))
     # [0.0, 962.7853017103384, 4159.864180622066, 9456.312066256418, 2076.1281115807665, 4421.657283337928]
-    
+
     # GEtting the number of points for the interpolation
     if not NumbPoints:
         NumbPoints = data[0].shape[0]
@@ -91,14 +91,14 @@ def RSS(data, AlignPoint, ref_index_data = 0, NumbPoints = None, InterpolationKi
     ref = data[ref_index_data]
     # Getting the interpolation data
     f_interp_data = [interp1d(ref[:,0], item[:,1], kind=InterpolationKind) for item in data]
-    
+
     minimum = max([item[:,0].min() for item in data])
     maximum = min([item[:,0].max() for item in data])
     # In this way we ensure only take those values for which we already have points in both data set
 
     if  not minimum <=AlignPoint <= maximum:
         raise ValueError(f"AlignPoint = {AlignPoint} is not in the range of the data, which is : {(minimum, maximum)}")
-    
+
     # Interpolating data nad having the same points (newx)
     newx = np.linspace(minimum, maximum, num=NumbPoints, endpoint=True)
     interp_data = [f_interp(newx) for f_interp  in f_interp_data]
@@ -121,7 +121,7 @@ def RSS(data, AlignPoint, ref_index_data = 0, NumbPoints = None, InterpolationKi
     RSS_values = []
     for i in range(len(interp_data)):
         RSS_values.append(((interp_data[i] - interp_data[ref_index_data])**2).sum())
-    
+
     return RSS_values
 
 def RUS(data, ref_index_data = 0, NumbPoints = None, InterpolationKind = 'cubic'):
@@ -132,7 +132,7 @@ def RUS(data, ref_index_data = 0, NumbPoints = None, InterpolationKind = 'cubic'
     RUS < 0, The model presents lower errors than the reference (in general)
     RUS = 0, The model has the same errors as the reference or they cancell out
     RUS > 0, The model presents worst errors than the reference
-    """ 
+    """
     # GEtting the number of points for the interpolation
     if not NumbPoints:
         NumbPoints = data[0].shape[0]
@@ -140,12 +140,12 @@ def RUS(data, ref_index_data = 0, NumbPoints = None, InterpolationKind = 'cubic'
     ref = data[ref_index_data]
     # Getting the interpolation data
     f_interp_data = [interp1d(ref[:,0], item[:,1], kind=InterpolationKind) for item in data]
-    
+
     minimum = max([item[:,0].min() for item in data])
     maximum = min([item[:,0].max() for item in data])
     # In this way we ensure only take those values for which we already have points in both data set
 
-    
+
     # Interpolating data nad having the same points (newx)
     newx = np.linspace(minimum, maximum, num=NumbPoints, endpoint=True)
     interp_data = [f_interp(newx) for f_interp  in f_interp_data]
@@ -160,8 +160,8 @@ def RUS(data, ref_index_data = 0, NumbPoints = None, InterpolationKind = 'cubic'
     RUS_values = []
     for i in range(len(interp_data)):
         RUS_values.append(((interp_data[i] - interp_data[ref_index_data])).sum())
-    
-    return RUS_values      
+
+    return RUS_values
 
 
 
@@ -273,12 +273,12 @@ def multi_run(commands, nPar, shell = True, executable = '/bin/bash'):
             for tmp_cmd in tmp_cmds:
                 tmp_cmd.wait()
             tmp_cmds = []
-        
+
 
 def run(command, shell = True, executable = '/bin/bash', Popen = False):
     #Here I could make some modification in order that detect the operator system
     #NAd make the command compatible with the operator system
-    #the function eval could be an option if some modification to the variable command 
+    #the function eval could be an option if some modification to the variable command
     #need to be done.... SOme flight ideas...
 
     if Popen:
@@ -295,7 +295,7 @@ def run(command, shell = True, executable = '/bin/bash', Popen = False):
 class CHECK:
     """
     This class test the normal ending of a GROMACS simulation using the log file.
-    E.g. 
+    E.g.
     let say that we have the md.log of a simulation
     # CHECK = CHECK('md.log')
     # if CHECK.performance:
@@ -309,13 +309,13 @@ class CHECK:
         self.lisfile = lisfile
         self.performance = None  #in ns/day, this attribute could be used to check if the simulation ended
         self.__check_normal_end__()
-    
+
     def __check_normal_end__(self):
         with open(self.logfile, 'r') as f:
             lines = f.readlines()
         for i in range(len(lines)):
             if 'Finished mdrun on rank' in lines[i]:
-                try: 
+                try:
                     self.performance = float(lines[i - 1].split()[1])
                 except:
                     pass
@@ -338,12 +338,12 @@ class CHECK:
             if "will finish" in line:
                 datetime_string = line.split("will finish")[-1].strip()
                 break
-                
+
         if datetime_string:
             return datetime.datetime.strptime(datetime_string, "%a %b %d %H:%M:%S %Y")
         else:
             return None
-    
+
     def get_startdatetime_from_log(self):
         with open(self.logfile, "r") as f:
             lines = f.readlines()
@@ -352,11 +352,11 @@ class CHECK:
             if 'Started mdrun on rank' in line: # Will take the last
                 datetime_string = " ".join(line.split()[-5:])
                 break
-                
+
         if datetime_string:
             return datetime.datetime.strptime(datetime_string, "%a %b %d %H:%M:%S %Y")
         else:
-            return None               
+            return None
 
     def daysdiff(self, startdatetime = None):
         """Take the difference between the estimated ended time of lisfile and datetime_start
@@ -371,7 +371,7 @@ class CHECK:
         if not startdatetime:
             startdatetime = self.get_startdatetime_from_log()
             print("The starting data time of the log file was used becasue user did not provided a start_datetime")
-        
+
         end_datetime = self.estimated_end_datetime()
         if startdatetime and end_datetime:
             return (end_datetime - startdatetime).total_seconds() / 86400
@@ -391,7 +391,7 @@ def checkrun(user = '$USER', partition = 'deflt'):
 def job_launch_list(job_path_list, shell="sbatch"):
     """
     Same as job_launch, but the path to the jobs are provided
-    
+
     Args:
     job_path_list (_type_): _description_
     shell (str, optional): _description_. Defaults to "sbatch".
@@ -484,7 +484,7 @@ def launch_wait_check_repeat(partition, jobpaths, logfile, lisfile, jobsh_name, 
 
 def job_launch(shell="sbatch", script_name = "job.sh"):
     """
-    
+
 
     Parameters
     ----------
@@ -522,7 +522,7 @@ def job_launch(shell="sbatch", script_name = "job.sh"):
 
 def backoff(file_path):
     """
-    
+
 
     Parameters
     ----------
@@ -560,7 +560,7 @@ def makedirs(path):
 
 def rm(pattern, r = False):
     """
-    
+
 
     Parameters
     ----------
@@ -581,17 +581,17 @@ def rm(pattern, r = False):
                 if os.path.isdir(p):
                     shutil.rmtree(p)
                 elif os.path.isfile(p):
-                    os.remove(p)       
+                    os.remove(p)
             else:
                 if os.path.isfile(p):
                     os.remove(p)
                 elif os.path.isdir(p):
                     print(f"The directory '{p}' was not deleted, set the flag r to True")
     else:
-        
+
         print(f"rm: '{pattern}' doesn't exist")
 
-                
+
 def cp(src, dest, r = False):
     """
     This function makes use of the possible multiple CPU of the machine.
@@ -620,10 +620,10 @@ def cp(src, dest, r = False):
     dest = os.path.abspath(dest)
     #This scheme doesn't consider the possibilities of other item except files, dir or regualr expresions
     if glob(src) and os.path.exists(os.path.dirname(dest)):
-    
+
         if os.path.isdir(src):
-            if r == True:            
-                
+            if r == True:
+
                 basename_src = os.path.basename(src)
                 for root, dirs, files in os.walk(src):
                     path2copy = root.split(src)[1]
@@ -632,7 +632,7 @@ def cp(src, dest, r = False):
                             path2copy = path2copy[1:]
                     except: pass
                     path_dest = os.path.join(dest,basename_src,path2copy)
-                    
+
                     if dirs:
                         pool = mp.Pool(mp.cpu_count())
                         pool.map(makedirs, [os.path.join(path_dest, d) for d in dirs])
@@ -640,32 +640,32 @@ def cp(src, dest, r = False):
                     if files:
                         makedirs(path_dest)
                         pool = mp.Pool(mp.cpu_count())
-                        
+
                         pool.starmap(shutil.copy2, [(os.path.join(root, f),path_dest) for f in files])
                         pool.close()
             else:
                 print(f"If you need to copy directories, set the 'r' flag to True. {src} is a directory")
-    
+
         elif os.path.isfile(src):
             shutil.copy2(src,dest)
             #if not os.path.exists(dest):
              #   print(f"The file '{src} was not copy to '{dest}' becasue doesn't exist or is not accesible")
-        
-        
+
+
         else:#Here we are in regular expresions
             to_copy = [file for file in glob(src) if os.path.isfile(file)]
             pool = mp.Pool(mp.cpu_count())
             pool.starmap(shutil.copy2, [(pattern,dest) for pattern in to_copy])
             pool.close()
-        
+
     elif not glob(src) and not os.path.exists(os.path.dirname(dest)):
         print(f"cp: neither {src}, nor {dest} exist.")
     elif not glob(src):
         print(f"cp: The source file {src} doesn't exist")
     else:
         print(f"cp: cannot create regular file '{dest}': Not a directory")
-            
-        
+
+
 
 def mv(src, dest, r = False):
     cp(src, dest, r = r)
@@ -722,12 +722,12 @@ def get_atom_index(file_path, H_atoms = True):
                 else:
                     if split[4].strip()[0] not in 'Hh': #This look for the first character of the atom name, if it is H or h, then is a hydrogen atom
                         atom_index.append(int(split[0]))
-                 
-    
+
+
     elif ext in ['gro', 'pdb']:
         with open("ndx.opt", "w") as opt:
             opt.write("""
-                      "System" group System; 
+                      "System" group System;
                       "System-H" group System and ! name "H*" and ! name "h*"
                       """)
         run(f"""
@@ -740,19 +740,19 @@ def get_atom_index(file_path, H_atoms = True):
             data = data.replace("_f0_t0.000","")
         with open("tmp.ndx", "w") as index:
             index.write(data)
-    
+
             ndx = NDX("tmp.ndx").data
             if H_atoms:
                 atom_index = ndx["System"]
             else:
                 atom_index = ndx["System-H"]
-        
+
 
     # Returning to the original directory
     os.chdir(cwd)
     return atom_index
  # Both functions could be put together in a class NDX, that has one method, write, because always read. But this create the disatventage to incompatibiliti with ndx rectifivcation
- # En otras palabras que se pierde la ventaja de copiar un dictionario nen formatop NDX, se tendria que crear un NDX vacio (un archivo vacio , porque siempre lo va a leer) y asignar la data al objecto, 
+ # En otras palabras que se pierde la ventaja de copiar un dictionario nen formatop NDX, se tendria que crear un NDX vacio (un archivo vacio , porque siempre lo va a leer) y asignar la data al objecto,
 
 class NDX:
     def __init__(self, file):
@@ -780,7 +780,7 @@ class NDX:
         """
         with open(self.file,'r') as f:
             lines = f.readlines()
-               
+
         positions = [i for (i, line) in enumerate(lines) if line.startswith('[')]
 
         for i in range(len(positions)):
@@ -832,9 +832,9 @@ class NDX:
 def get_top_sections(topology, dictionary = False):
     """
     The flag dictionary is available because if in the topology there are two
-    sections with the same name, then the last one is the only one that will 
+    sections with the same name, then the last one is the only one that will
     be save.
-    IN the case that 
+    IN the case that
 
     Parameters
     ----------
@@ -854,11 +854,11 @@ def get_top_sections(topology, dictionary = False):
     """
     with open(topology,"r") as top:
         top_lines = top.readlines()
-    
+
     sections = [] #is not possible to use dict because there is some repeated sections, like dihedrals, I don't know why
     for i in range(len(top_lines)):
         if top_lines[i].startswith("["):
-            
+
             key = ""
             for char in top_lines[i]:
                 if char == "]":
@@ -866,17 +866,17 @@ def get_top_sections(topology, dictionary = False):
                 if char not in "[ ":
                     key += char
             key.strip()
-            
-            
+
+
             info = []
             for j in range(i + 1, len(top_lines)):
                 if top_lines[j].startswith("["):
                     i = j - 1
                     break
                 info.append(top_lines[j])
-               
-            sections.append([key.strip(), info])   
-    
+
+            sections.append([key.strip(), info])
+
     if dictionary: return dict(sections)
     return sections
 def KbT(absolute_temperature):
@@ -885,7 +885,7 @@ def KbT(absolute_temperature):
     Args:
         absolute_temperature (float): The absolute temperature in kelvin
     """
-    
+
     return absolute_temperature*CTE.Kb
 
 def beta(absolute_temperature):
@@ -933,7 +933,7 @@ class classifier_ifp:
         self.ifp_atoms_file = ifp_atoms_file
         self.n_clusters = n_clusters
         self.parse()
-    
+
     def __split(self, string):
         def f(s):
             if 'chain' in s:
@@ -943,7 +943,7 @@ class classifier_ifp:
             else:
                 return ""
         return np.vectorize(f)(string)
-    
+
     def cluster(self, n_clusters=2, max_iter=500, init='Cao', n_init=40, verbose=0, random_state=None, n_jobs=1):
         self.n_clusters = n_clusters
         ## Becasue all the data is True or False, every variable contribute with the same weight, so there is no need to rescale it.
@@ -1009,7 +1009,7 @@ class classifier_ifp:
         self.cluster(n_clusters=self.n_clusters)
 
     def get_closers(self, user_membership = None):
-        """Return the closest frames for each cluster in self.membership or user_memebership if provided. 
+        """Return the closest frames for each cluster in self.membership or user_memebership if provided.
 
         Args:
             user_membership (dict, optional): The memebership, the keys will be the cluster identifier and the values the frames taht belongs to each cluster. Defaults to None.
@@ -1046,7 +1046,7 @@ class classifier_dist_contacts:
         self.n_clusters = n_clusters
         self.data = pd.DataFrame()
         self.parse()
-    
+
     def cluster(self, n_clusters=2, init='k-means++', n_init=50, max_iter=500, tol=0.0001, verbose=0, random_state=None, copy_x=True, algorithm='auto'):
         features = ['AveNumResi', 'AveDistZ']
         self.n_clusters = n_clusters
@@ -1075,7 +1075,7 @@ class classifier_dist_contacts:
         self.membership = OrderedDict()
         for i in range(self.n_clusters):
             self.membership[i] = np.where(self.model.labels_ == i)[0]
-    
+
     def parse(self):
         u = mda.Universe(self.tpr, self.xtc)
 
@@ -1106,7 +1106,7 @@ class classifier_dist_contacts:
         )
         # Run cluster with the default values nad number of cluster
         self.cluster(n_clusters=self.n_clusters)
-    
+
     def get_closers(self):
          # https://stackoverflow.com/questions/26795535/output-50-samples-closest-to-each-cluster-center-using-scikit-learn-k-means-libr
         # This is like on the paper was done, but I need to do the scalling first
@@ -1116,8 +1116,9 @@ class classifier_dist_contacts:
         return closest_frames
 
 if __name__ == '__main__':
-    
+
     pass
+    print(CTE.Kb)
     #k = aovec([(0,0,1), (0,1,0), (1,0,0)])
     #deg = 2.5
     #rad = np.pi*deg/180
@@ -1154,14 +1155,15 @@ if __name__ == '__main__':
     # print(a.get_closers())
     # #print(a.get_closers())
     # #print(a.labels_)
-    #print(KbT(300))
-    d0 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord0_selected.xvg').data
-    d1 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord1_selected.xvg').data
-    d2 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord2_selected.xvg').data
-    d3 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord3_selected.xvg').data
-    d4 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord4_selected.xvg').data
-    d5 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord5_selected.xvg').data
-    data = [d0, d1, d2, d3, d4, d5]
-    AlignPoint = 4.5
-    NumbPoints = 300
-    print(RSS(data,AlignPoint, NumbPoints = NumbPoints))
+    # print(KbT(300))
+    # print(get_force_cte(298,1))
+    # d0 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord0_selected.xvg').data
+    # d1 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord1_selected.xvg').data
+    # d2 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord2_selected.xvg').data
+    # d3 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord3_selected.xvg').data
+    # d4 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord4_selected.xvg').data
+    # d5 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord5_selected.xvg').data
+    # data = [d0, d1, d2, d3, d4, d5]
+    # AlignPoint = 4.5
+    # NumbPoints = 300
+    # print(RSS(data,AlignPoint, NumbPoints = NumbPoints))

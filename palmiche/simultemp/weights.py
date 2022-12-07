@@ -33,7 +33,7 @@ def AleWeights(temperatures, internal_energies, target_temperatures, integrator 
         integrator (str, optional): Integration method. Are currently supported:
             trapezoid --> scipy.integrate.trapezoid
             trapz --> numpy.trapz (Default)
-            simps --> scipy.integrate.simpson 
+            simps --> scipy.integrate.simpson
         weight_GROMACS_format (bool, optional): If True each weight will be divided by its corresponded beta value of temperature. Defaults to True.
 
     Returns:
@@ -115,7 +115,7 @@ def AleWeights(temperatures, internal_energies, target_temperatures, integrator 
             break
     # Calculate the weights:
     weights = np.linalg.solve(M, b)
-     
+
     # Convert if needed to GROMACS weights
     if weight_GROMACS_format:
         minimum = weights.min()
@@ -123,7 +123,7 @@ def AleWeights(temperatures, internal_energies, target_temperatures, integrator 
             weights -= minimum
         else:
             weights += np.abs(minimum)
-    
+
     return weights
 
 def PandeWeights(temperatures, energies, alpha = None, weight_GROMACS_format = True):
@@ -153,7 +153,7 @@ def PandeWeights(temperatures, energies, alpha = None, weight_GROMACS_format = T
     # Solve the system of equations
     # Calculate the weights:
     weights = np.linalg.solve(M, b)
-     
+
     # Convert if needed to GROMACS weights
     if weight_GROMACS_format:
         minimum = weights.min()
@@ -301,7 +301,7 @@ def get_weights_from_log(log, plot = False):
             #axes[0].plot(time, weights_info[:,j,0], label = str(j))
             axes[0].plot(time, probability[:,j], label = str(j))
             axes[1].plot(time, weights_info[:,j,1])
-        
+
         fig.legend(loc = 'lower center', ncol = int(weights_info.shape[1] / 2))
         axes[0].set(
             xlim = (time.min(), time.max()),
@@ -350,8 +350,8 @@ if __name__ == '__main__':
     # o = get_energy('/home/ale/mnt/smaug/TEST/500_H2O/tempering.edr', [0,20,25,30,50,200, 230,240,563,600,700,800,900,950])
     # print(o)
 
-    # a = PandeWeights([100,400,500], [20,17,256], alpha = 0.0001)
-    # print(a)
+    a = PandeWeights([100,400,500], [20,17,256], alpha = None, weight_GROMACS_format=True)
+    print(a)
     # temperatures = list(np.linspace(300, 501, 400))
     # energies = range(len(temperatures))
     # target_temperatures = [300, 325, 350, 375, 400, 425, 450, 475, 500]
@@ -373,4 +373,4 @@ if __name__ == '__main__':
     #     weight_GROMACS_format = True,
     #     integrator = 'trapezoid')
     # print(A)
-    _, w = get_weights_from_log('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_P/7e27/sys_MMV007839_Cell_891_SP_param/windows/00085/production.log', plot = True) # AleWeights
+    # _, w = get_weights_from_log('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_P/7e27/sys_MMV007839_Cell_891_SP_param/windows/00085/production.log', plot = True) # AleWeights
