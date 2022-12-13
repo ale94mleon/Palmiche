@@ -542,7 +542,7 @@ def toptleap2itp(topology, out_prefix = "UNL"):
         if not atom.startswith(";"):#This is necessary because the commented lines in gromacs topology files
             split = atom.strip().split()#strip for the case of blank lines
             if split:#The list has something, this is all for the case of blank lines
-                if split[4][0].lower() == "h": #This is the column that has the atom name, I select the first char because could be H0, HH13, etc, and all of them are Hydrogens atoms, hoping that all of them start with H
+                if split[4][0].lower() != "h": #This is the column that has the atom name, I select the first char because could be H0, HH13, etc, and all of them are Hydrogens atoms, hoping that all of them start with H
                     heavy_atoms.append(split[0])#Here is the column that has the atom index
             
     #Writing the posre file
@@ -925,7 +925,7 @@ done
     return(template)
 
 if __name__ == "__main__":
-    pass 
+    pass
 
             
         
