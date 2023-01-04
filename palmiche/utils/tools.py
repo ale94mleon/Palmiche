@@ -30,8 +30,9 @@ import prolif as plf
 import MDAnalysis as mda
 from MDAnalysis.topology.guessers import guess_types
 
-from rdkit.Chem import DataStructs
+from rdkit.Chem import DataStructs, AllChem
 from rdkit.DataStructs import ExplicitBitVect
+from rdkit import Chem
 
 from kneed import KneeLocator
 from sklearn.cluster import KMeans
@@ -54,6 +55,7 @@ class CTE:
     """Some importnat physical constants
     """
     Kb = 8.314462618E-3 #kJ/(mol⋅K) (kNA)
+    R = 8.314462618E-3 #kJ/(mol⋅K)
 
 def RSS(data, AlignPoint, ref_index_data = 0, NumbPoints = None, InterpolationKind = 'cubic'):
     """This function will return a list of Residues Squared Sums.
@@ -682,6 +684,54 @@ def list_if_file(path = '.'):
 #                      Tools for working with index and topology files
 
 #=======================================================================================
+def replace_conformer(mol: Chem.rdchem.Mol, ref_mol: Chem.rdchem.Mol, inplace: bool = True):
+    """Will replace (or add) the conformation state of mol
+    by the conformational state of ref_mol.
+    Preserving the atom order of mol.
+
+    Parameters
+    ----------
+    mol : Chem.rdchem.Mol
+        The molecule to add the conformation
+    ref_mol : Chem.rdchem.Mol
+        The molecule with the reference conformation
+    inplace : bool, optional
+        If True mol will be modify inplace, if False a new instance will be return, by default True
+
+    Returns
+    -------
+    Chem.rdchem.Mol
+        The new instance of mol only if inplace = True, if not None will be return
+
+    Raises
+    ------
+    ValueError
+        If ref_mol does not have a valid conformational state.
+    """
+    if not inplace:
+        from copy import deepcopy
+        mol = deepcopy(mol)
+    assert Chem.MolToSmiles(mol) == Chem.MolToSmiles(ref_mol)
+    
+    try:
+         mol_conf = mol.GetConformer()
+    except ValueError:
+        AllChem.EmbedMolecule(mol)
+        mol_conf = mol.GetConformer()
+    
+    try:
+        ref_mol.GetConformer()
+    except ValueError:
+        raise ValueError('ref_mol does not have a conformer.')
+
+    mcs_atoms_idxs = mol.GetSubstructMatch(ref_mol)
+    for ref_mol_atom_idx, mol_atom_idx in enumerate(mcs_atoms_idxs):
+        mol_conf.SetAtomPosition(mol_atom_idx, ref_mol.GetConformer().GetAtomPosition(ref_mol_atom_idx))
+    if inplace:
+        return None
+    else:
+        return mol
+
 def get_atom_index(file_path, H_atoms = True):
     """
 
@@ -879,6 +929,7 @@ def get_top_sections(topology, dictionary = False):
 
     if dictionary: return dict(sections)
     return sections
+
 def KbT(absolute_temperature):
     """Return the value of Kb*T in kJ/mol
 

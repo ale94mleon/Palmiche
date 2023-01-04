@@ -40,7 +40,7 @@ def main(BoundRegion, radium, sigma, absolute_temperature, PmfXvgPath, integrato
     Finally, to get the IC50 because the cylinder restrain used on the umbrella simulation:
     V = np.pi*(radium + 2*sigma)**2*L*1E-24
     1E-24 is to convert from nm to dm. This implies that all the lenght units must be in [nm], Energy in [kJ/mol] and temperature in [K].
-    
+
     IC50 = 1 / (Nav*V) [mol/L]
     There are several possibilities that are handled on the code:
         It is not necessary to extrapolate the data. If not, only the simulation data will be used
@@ -70,8 +70,10 @@ def main(BoundRegion, radium, sigma, absolute_temperature, PmfXvgPath, integrato
     else:
         raise ValueError(f"{integrator} is not a valid integration method. Valid methods are: 'simpson', 'trapezoid', 'trapz'")
 
-    Nav = 6.02214076E23  
+    Nav = 6.02214076E23
     data = xvg.XVG(PmfXvgPath).data
+    data = data[data[:,0] < 4.5]
+    data = data[data[:,0] > 0.1]
     data = np.array(sorted(data,key=lambda x:x[0])) # I am not able to use, the sort method of a numpy array in this case
     xmax = np.max(data[:,0])
 
@@ -90,7 +92,7 @@ def main(BoundRegion, radium, sigma, absolute_temperature, PmfXvgPath, integrato
         # Esto no lo he porgramado todavia
         # Ahora tengo dos intervlos el minimo esta en el medio
     else:
-        # The minimum is deffined from the first point of the data to X2           
+        # The minimum is deffined from the first point of the data to X2
         data_x0_x2 = data[(data[:,0] <= x2)]
         data_x2_x3 = data[(data[:,0] > x2)]
 
@@ -99,7 +101,8 @@ def main(BoundRegion, radium, sigma, absolute_temperature, PmfXvgPath, integrato
         #to_add = np.array(len(data_x0_x2)*[(0,30)])
         #data_x0_x2 += to_add
         new_data = np.concatenate((data_x0_x2, data_x2_x3), axis = 0)
-        fig, ax = plt.subplots(2,1,figsize = (16,9))
+        fig, ax = plt.subplots(3,1,figsize = (16,9))
+        ax[2].plot(data[:,0],data[:,1])
         ax[0].plot(new_data[:,0],new_data[:,1])
         ax[1].plot(new_data[:,0],tools.BoltzmannFactor(new_data[:,1], absolute_temperature))
         fig.savefig("pmf_boltzman_factor.pdf")
@@ -110,7 +113,7 @@ def main(BoundRegion, radium, sigma, absolute_temperature, PmfXvgPath, integrato
         P_x0_x2 = integrator(tools.BoltzmannFactor(data_x0_x2[:,1],absolute_temperature),data_x0_x2[:,0])
         P_x2_x3 = integrator(tools.BoltzmannFactor(data_x2_x3[:,1],absolute_temperature),data_x2_x3[:,0])
         #El problema aqui es que tengo que jugar con la data original, y cuando se me acaben los puntos entonces empezar a interpolar con un dX y empezar a adicionar puntos a la data, hasta que converja la tolerancia o hasta que se me acaben los puntos
-        #Probablemente sea mejor correr sobre la data, probar una vez si con el maximo se obtiene convergencia (el signo sera imporrtante) sino ya ir directo a la suma de puntos 
+        #Probablemente sea mejor correr sobre la data, probar una vez si con el maximo se obtiene convergencia (el signo sera imporrtante) sino ya ir directo a la suma de puntos
         if P_x2_x3 > P_x0_x2:
             L = data_x2_x3[1,0]
             error = np.abs(integrator(tools.BoltzmannFactor(data_x2_x3[:1,1],absolute_temperature),data_x2_x3[:1,0]) - P_x0_x2)
@@ -127,26 +130,32 @@ def main(BoundRegion, radium, sigma, absolute_temperature, PmfXvgPath, integrato
 
         V = np.pi*(radium + 2*sigma)**2*L*1E-24
         IC50 = 1 / (Nav*V)
+        deltaG = max(data[:,1]) - min(data[:,1])
+        # print("Error: ",np.exp(-6/(8.31E-3*303.15)))
+        # print(f"Raw delatG = {deltaG}; Raw IC50 = {np.exp(-deltaG/(8.31E-3*303.15))}, After Correction deltaG = {-8.31E-3*303.15*np.log(IC50)}")
         with open('ic50.txt', "w") as f:
-            f.write(str(IC50))   
+            f.write(str(IC50))
     return IC50
 
 
 
 
-           
+
 
 if __name__ == '__main__':
     import os, glob
-    umbrellas = sorted(glob.glob('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_*'))
+    from palmiche.utils.tools import get_sigma
+    umbrellas = sorted(glob.glob('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q*'))
+
     for umbrella in umbrellas:
         try:
-            ic50 = main(2, 0.4, 0.071, 303.15, os.path.join(umbrella, '7e27/sys_MMV007839_Cell_891_SP_param/windows/coord0_selected.xvg'))
+            ic50 = main(2, 0.4, 2*get_sigma(303.15,500), 303.15, os.path.join(umbrella, '7e27/cis1_bh267_m_vacumm_Cell_682_SP_param/windows/bsResult_coord0_selected.xvg'))#cis1_bh267_m_vacumm_Cell_682_SP_param #sys_MMV007839_Cell_891_SP_param
             print(f"{os.path.basename(umbrella):>50}: IC50 = {ic50}")
 
-        except:
+        except Exception as e:
+            print(e)
 
 
             pass
     # with open('ic50.txt', "w") as f:
-    #     f.write(str(ic50))   
+    #     f.write(str(ic50))
