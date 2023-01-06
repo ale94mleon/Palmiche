@@ -369,7 +369,7 @@ class PDB:
                 posre.write(f"{atom_index:^5}{1:^5}{fcx_fcy_fcz[0]:^20}{fcx_fcy_fcz[1]:^20}{fcx_fcy_fcz[2]:^20}\n")
 
     def write(self, out_file = None, backup = True):
-        """Write gro file, all the modifications
+        """Write pdb file, all the modifications
         are taken into account.
 
         Parameters

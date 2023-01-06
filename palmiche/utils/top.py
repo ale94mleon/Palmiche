@@ -77,6 +77,10 @@ class TOP:
             A list of string that represent the content of the topology section.
         """
         return self.data.loc[section, 'content']
+    
+    def get_section_names(self) -> list[str]:
+        return list(self.data.index)
+
 
     def pop_section(self, section:str):
         """The same get_section() is called
@@ -106,6 +110,19 @@ class TOP:
             The name of the section to get.top
         """
         self.data = self.data.drop(section)
+
+    def to_itp(self, drop_sections:tuple[str] = ("defaults" , "atomtypes", "system", "molecules")):
+        """Deletes the sections specified in drop_sections. The default options
+        are not usually needed in a itp that is included in the main topology file.
+
+        Parameters
+        ----------
+        drop_sections : tuple[str], optional
+            Sections to delete, by default ("defaults" , "atomtypes", "system", "molecules")
+        """
+        for section in drop_sections:
+            self.del_section(section)
+
 
     def append_section(self, content:list[str], section:Union[int, str] = 0):
         """Add to the end of the topology a new section

@@ -42,8 +42,9 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from scipy.cluster.vq import vq
 from scipy.interpolate import interp1d
 from palmiche.utils import xvg
+from typing import Union
 
-
+PathLike = Union[os.PathLike, str, bytes]
 
 
 #=======================================================================================
@@ -225,13 +226,13 @@ def get_vec_COM(conf, tpr, ndx, group1, group2, round = None):
     Returns:
         np.array: the unitary vector formed by group2, group1
     """
-    xvgtmp1 = tempfile.NamedTemporaryFile(suffix=".xvg")
-    run(f"export GMX_MAXBACKUP=-1;echo {group1} | gmx traj -f {conf} -s {tpr} -n {ndx} -com -ox {xvgtmp1.name}")
-    coord1 = xvg.XVG(xvgtmp1.name).data[0,1:]# First row from column 1 to the end, the column 0 is time.
+    with tempfile.NamedTemporaryFile(suffix=".xvg") as xvgtmp1:
+        run(f"export GMX_MAXBACKUP=-1;echo {group1} | gmx traj -f {conf} -s {tpr} -n {ndx} -com -ox {xvgtmp1.name}")
+        coord1 = xvg.XVG(xvgtmp1.name).data[0,1:]# First row from column 1 to the end, the column 0 is time.
 
-    xvgtmp2 = tempfile.NamedTemporaryFile(suffix=".xvg")
-    run(f"export GMX_MAXBACKUP=-1;echo {group2} | gmx traj -f {conf} -s {tpr} -n {ndx} -com -ox {xvgtmp2.name}")
-    coord2 = xvg.XVG(xvgtmp2.name).data[0,1:]# First row from column 1 to the end, the column 0 is time.
+    with tempfile.NamedTemporaryFile(suffix=".xvg") as xvgtmp2:
+        run(f"export GMX_MAXBACKUP=-1;echo {group2} | gmx traj -f {conf} -s {tpr} -n {ndx} -com -ox {xvgtmp2.name}")
+        coord2 = xvg.XVG(xvgtmp2.name).data[0,1:]# First row from column 1 to the end, the column 0 is time.
     vector = unit_vector(coord2 - coord1)
     if round: vector = np.round(vector, round)
     return vector
@@ -673,6 +674,9 @@ def mv(src, dest, r = False):
     cp(src, dest, r = r)
     rm(src,r=r)
 
+def touch(filepath):
+    open(filepath, "w").close()
+
 def list_if_dir(path = '.'):
     return [item for item in os.listdir(path) if os.path.isdir(os.path.join(path, item))]
 
@@ -685,7 +689,7 @@ def list_if_file(path = '.'):
 
 #=======================================================================================
 def replace_conformer(mol: Chem.rdchem.Mol, ref_mol: Chem.rdchem.Mol, inplace: bool = True):
-    """Will replace (or add) the conformation state of mol
+    """Will replace the conformation state of mol
     by the conformational state of ref_mol.
     Preserving the atom order of mol.
 
@@ -711,7 +715,7 @@ def replace_conformer(mol: Chem.rdchem.Mol, ref_mol: Chem.rdchem.Mol, inplace: b
     if not inplace:
         from copy import deepcopy
         mol = deepcopy(mol)
-    assert Chem.MolToSmiles(mol) == Chem.MolToSmiles(ref_mol)
+    assert Chem.MolToSmiles(mol) == Chem.MolToSmiles(ref_mol), f"\n{Chem.MolToSmiles(mol)}\n{Chem.MolToSmiles(ref_mol)}"
     
     try:
          mol_conf = mol.GetConformer()
@@ -731,6 +735,134 @@ def replace_conformer(mol: Chem.rdchem.Mol, ref_mol: Chem.rdchem.Mol, inplace: b
         return None
     else:
         return mol
+
+class Mol2:
+    """Read a mol2 molecule and storge the corresponded RDKit molecule in
+    the attribute 'mol'
+
+    Example
+    -------
+    .. ipython:: python
+
+        from palmiche.utils.tools import Mol2
+        from palmiche import home
+        mol2_path = home(os.path.join("sample", "test.mol2"))
+        molecule = Mol2(mol2_path)
+        for atom in molecule.mol.GetAtoms():
+            # Two etra properties added to the atom class
+            print(atom.GetProp('atom_type'), atom.GetDoubleProp('charge'))
+    """
+    def __init__(self, mol2_path:PathLike) -> None:
+        self.mol2_path = mol2_path
+        self.mol = None
+        self._name_changed_ = False
+        self.read()
+
+    def read(self) -> None:
+        """This function read the file and create
+        the RDKit molecule and stores it in the attribute
+        `mol`.
+
+        """
+        self.mol = Chem.MolFromMol2File(self.mol2_path, removeHs = False)
+        if not self.mol:
+            print('Trying with atom types change...')
+            with open(self.mol2_path, 'r') as f:
+                lines = f.readlines()
+                atom_types = []
+                user_formal_charges = []
+                for i in range(len(lines)):
+                    if lines[i].startswith('@<TRIPOS>ATOM'):
+                        for j in range(i+1, len(lines)):
+                            if lines[j].startswith('@'):
+                                break
+                            line_split = lines[j].split()
+                            atom_types.append(line_split[5])
+                            user_formal_charges.append(float(line_split[-1]))
+                            line_split[5] = line_split[1].translate({ord(i): None for i in '0123456789'})
+                            lines[j] = '\t'.join(line_split) + '\n'
+                        break
+            string = "".join(lines)
+            self.mol = Chem.MolFromMol2Block(string, removeHs = False)
+            if self.mol:
+                for atom, atom_type, user_formal_charge in zip(self.mol.GetAtoms(), atom_types, user_formal_charges):
+                    atom.SetDoubleProp('charge', float(user_formal_charge))
+                    atom.SetProp('atom_type',atom_type)
+                print("The mol was created succesfully!")
+            else:
+                print("It is not possible to convert the mol2 to RDKit molecule.")
+
+    def AddConformer(self, ref_mol:Chem.rdchem.Mol) -> None:
+        """Add to self.mol the conformation of ref_mol.
+        It is not needed that the molecules have the same atom
+        indexes; `palmiche.utils.tools.replace_conformer` will
+        be internally called.
+
+        Parameters
+        ----------
+        ref_mol : Chem.rdchem.Mol
+            The reference molecule with a conformational state.
+        """
+        replace_conformer(self.mol, ref_mol, inplace=True)
+    
+    def ChangeName(self, mol_name:str) -> None:
+        """Change name of the molecule
+
+        Parameters
+        ----------
+        mol_name : str
+            Code name to the molecule. It is wise to use a code
+            no larger than 3 characters.
+        """
+        self._name_changed_ = True
+        self.mol.SetProp('_Name', mol_name)
+    
+    def write(self, out_file:PathLike) -> None:
+        """Write the molecue in mol2 format.
+
+        Parameters
+        ----------
+        out_file : PathLike
+            The path to the file.
+        """
+        with open(self.mol2_path, 'r') as f:
+            lines = f.readlines()
+        
+        for i in range(len(lines)):
+            if lines[i].startswith('@<TRIPOS>ATOM'):
+                atom_idx = 0
+                for j in range(i+1, len(lines)):
+                    if lines[j].startswith('@'):
+                        break
+                    line_split = lines[j].split()
+                    line_split[2:5] = [coord for coord in self.mol.GetConformer().GetAtomPosition(atom_idx)]
+                    if self._name_changed_:
+                        line_split[7] = self.mol.GetProp('_Name')
+                    for column, item in enumerate(line_split):
+                        if column in [0,1,5,6,7]:
+                            line_split[column] = f"{line_split[column]:>5}"
+                        elif column in [2,3,4]:
+                            line_split[2:5] = [float(coord) for coord in line_split[2:5]]
+                            line_split[2:5] = [f"{coord:10.4f}" for coord in line_split[2:5]]
+
+                        else:
+                            line_split[column] = f"{line_split[column]:>10}"
+                    lines[j] = ''.join(line_split) + '\n'
+                    atom_idx += 1
+                break
+            if lines[i].startswith('@<TRIPOS>MOLECULE') and self._name_changed_:
+                lines[i+1] = f"{self.mol.GetProp('_Name'):>7}\n"
+        with open(out_file, 'w') as f:
+            f.write("".join(lines))
+        # import openbabel
+        # obConversion = openbabel.OBConversion()
+        # obConversion.SetInAndOutFormats("mol", "mol2")
+        # obabel_mol = openbabel.OBMol()
+        # obConversion.ReadString(obabel_mol, Chem.MolToMolBlock(self.mol))
+        # obConversion.WriteFile(obabel_mol, out_file_name)
+        # for idx, atom in enumerate(self.mol.GetAtoms()):
+        #     obabel_mol.GetAtom(idx +1).SetPartialCharge(atom.GetDoubleProp('charge'))
+        # obConversion.WriteFile(obabel_mol, 'taka')
 
 def get_atom_index(file_path, H_atoms = True):
     """
@@ -1055,6 +1187,7 @@ class classifier_ifp:
             self.ifp_df.to_pickle(self.ifp_file)
             # Also the ifp_atoms will be exported
             self.ifp_df_atoms.to_pickle(self.ifp_atoms_file)
+            tmp_pdb.close()
 
         # Run cluster with the default values nad number of cluster
         self.cluster(n_clusters=self.n_clusters)

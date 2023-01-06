@@ -116,6 +116,7 @@ def pka2gmx(pdb_path,
     tmpdir = tempfile.TemporaryDirectory()
     pdb_path = os.path.abspath(pdb_path)
     output = os.path.abspath(output)
+
     file_name = f"{os.path.basename(pdb_path).split('.')[0]}"
     pKa_file = f"{file_name}.pka"
 
@@ -189,21 +190,21 @@ def pka2gmx(pdb_path,
                 j += 1
             break
 
-    '''
-    Propka order the aa by chain and by resi number (the same as pdb2gmx)
+
+    # Propka order the aa by chain and by resi number (the same as pdb2gmx)
     
-    Only we need to be sure to ordered the sequence of comands to pdb2gmx
+    # Only we need to be sure to ordered the sequence of comands to pdb2gmx
     
-    The order that pdb2gmx ask you is by alphabetic order in the case that more than one
-    flag was needed. For example, if on GLU need to be fixed and two ASP
-    pdb2gmx will ask you first for ASP (the chain A, all the residues of chain A
-    ordered , then chain B, all residues ordered respect to the residue number). 
-    Then it will ask you for GLU in the same manner
+    # The order that pdb2gmx ask you is by alphabetic order in the case that more than one
+    # flag was needed. For example, if on GLU need to be fixed and two ASP
+    # pdb2gmx will ask you first for ASP (the chain A, all the residues of chain A
+    # ordered , then chain B, all residues ordered respect to the residue number). 
+    # Then it will ask you for GLU in the same manner
     
-    Because pdb2gmx use some optimization of the H+-bond network. In order to take
-    advantages of this. We check which protonation found pdb2gmx and used.
-    Only if HIS give False in the check
-    '''
+    # Because pdb2gmx use some optimization of the H+-bond network. In order to take
+    # advantages of this. We check which protonation found pdb2gmx and used.
+    # Only if HIS give False in the check
+
     tools.run(f"gmx pdb2gmx -f {pdb_path} -o tmp.pdb -ff {protein_forcefield} -water {water_forcefield} -ignh -merge all")
     [tools.rm(item) for item in ["*.top","*.itp"]]
     #tools.run('grep HIS tmp.pdb | egrep "HD1|HE2" > tmp.pdb.tmp; mv tmp.pdb.tmp tmp.pdb')
@@ -233,7 +234,7 @@ def pka2gmx(pdb_path,
             if togmx['HIS'][i] != 2 and protonation_HIS[i] != 2: 
                 togmx['HIS'][i]["prot_state"] = protonation_HIS[i] # only use the information if the proton is delta or epsilon
     else:
-        print('''WARNING: Something terrible wrong hapened with the pdb2gmx comprobation of HIS.
+        print('''WARNING: Something terrible wrong happened with the pdb2gmx checking of HIS.
               Therefore the deprotonated HIS will be considered as the epsilon only.
               ''')
     tools.rm('tmp.pdb')
@@ -282,7 +283,6 @@ def pka2gmx(pdb_path,
     print(cmd)
 
     os.chdir(cwd)
-
     # Coping from temporal directory
     if pKa_file_out:
         tools.cp(os.path.join(tmpdir.name, pKa_file), '.')
@@ -290,8 +290,11 @@ def pka2gmx(pdb_path,
         [tools.cp(item, '.') for item in [os.path.join(tmpdir.name, "*.top"), os.path.join(tmpdir.name, "*.itp")]]
     if num_file:
         tools.cp(os.path.join(tmpdir.name, 'num.txt'), '.')
+    tmpdir.cleanup()
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='pKa2pdb2gmx.')
+    parser = argparse.ArgumentParser(description='pKa2pdb2gmx')
     parser.add_argument("pdb_path", 
                         help = "The path to the pdb file to process.",
                         type = str)
