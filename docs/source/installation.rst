@@ -21,7 +21,7 @@ Then install the dependencies libraries:
 
 .. code-block:: bash
 
-    conda install -y -c conda-forge vina openbabel
+    conda install -y -c conda-forge vina ambertools openbabel openff-toolkit openmm
 
 ..  In the future we will consider to use the python modules `vina on pypi <https://pypi.org/project/vina/>`_. Finally:
 
