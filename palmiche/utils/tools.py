@@ -844,7 +844,6 @@ class Mol2:
                         elif column in [2,3,4]:
                             line_split[2:5] = [float(coord) for coord in line_split[2:5]]
                             line_split[2:5] = [f"{coord:10.4f}" for coord in line_split[2:5]]
-
                         else:
                             line_split[column] = f"{line_split[column]:>10}"
                     lines[j] = ''.join(line_split) + '\n'

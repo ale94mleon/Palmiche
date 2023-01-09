@@ -3,7 +3,7 @@
 
 import os
 from palmiche.home import home
-from palmiche.utils import tools
+from palmiche.utils import tools, jobsh
 from palmiche.utils.tools import PathLike
 from palmiche.utils import pdb, top
 from palmiche.utils.pKa2pdb2gmx import pka2gmx
@@ -12,6 +12,7 @@ import tempfile
 from meeko import PDBQTMolecule, RDKitMolCreate
 from rdkit import Chem
 import openbabel
+from toff import Parameterize
 
 
 def get_path_dict(ligands_path:PathLike = "./ligands", receptors_path:PathLike = "./receptors", dockings_path:PathLike = "./run_vina_run"):
@@ -65,11 +66,16 @@ def get_path_dict(ligands_path:PathLike = "./ligands", receptors_path:PathLike =
 
 
     ligand_dict = {}
-    for directory in tools.list_if_dir(ligands_path):
-        ligand_dict[directory] = {"frcmod": os.path.join(ligands_path, directory, "mol.frcmod"),
-                                  "mol2": os.path.join(ligands_path, directory, "mol.mol2"),
-                                  "pdb": os.path.join(ligands_path, directory, "mol.pdb"),
-                                  "list": os.path.join(ligands_path, directory, "list.lis")}
+    # for directory in tools.list_if_dir(ligands_path):
+    for file in tools.list_if_file(ligands_path):
+        file_name, _ = os.path.splitext(file)
+        if os.path.isdir(os.path.join(ligands_path, file_name)):
+            ligand_dict[file_name] = {"frcmod": os.path.join(ligands_path, file_name, "mol.frcmod"),
+                                    "mol2": os.path.join(ligands_path, file_name, "mol.mol2"),
+                                    "pdb": os.path.join(ligands_path, file_name, "mol.pdb"),
+                                    "list": os.path.join(ligands_path, file_name, "list.lis")}
+        else:
+            ligand_dict[file_name] = None
 
     docking_dict = {}
     for receptor in tools.list_if_dir(dockings_path):
@@ -283,17 +289,10 @@ def run_tleap(mol2_path, frcmod_path):
                 tleap -s -f {tmpin.name} > {file_name}_tleap.out
                 acpype -p {file_name}.prmtop -x {file_name}.crd
                 """)
-        gro_file = glob("*.amb2gmx/*.gro")[0]
-        obConversion = openbabel.OBConversion()
-        obConversion.SetInAndOutFormats("gro", "pdb")
-        mol_obabel = openbabel.OBMol()
-        obConversion.ReadFile(mol_obabel, gro_file)
-        file_name, _ = os.path.splitext(gro_file)
-        obConversion.WriteFile(mol_obabel,f"{file_name}.pdb")
 
 
-
-def topoltop(topol, numb_lipids, out_name = None, backup = True):
+# TODO A much general function here. the problem is in how to read the include statements
+def topoltop(topol, numb_lipids, out_name = None, ligand_ff_code = 'GAFF2', backup = True):
     """
     !!!!!This function is NOT general at all, it is just created here for stetic
     and is strong depended of what I needed to do in my project, so, use it
@@ -318,15 +317,15 @@ def topoltop(topol, numb_lipids, out_name = None, backup = True):
 ; Include forcefield parameters
 #include "./amber99sb-star-ildn.ff/forcefield.itp"
 """
-    ff_include_new = """
+    ff_include_new = f"""
 ; Include forcefield parameters
 #include "./amber99sb-star-ildn.ff/forcefield.itp"
 
 ; Include forcefield parameters
 #include "./Slipids_2020.ff/forcefield.itp"
 
-; Include GAFF2 atom definition
-#include "./GAFF2.ff/atomtypes.itp"
+; Include {ligand_ff_code} atom definition
+#include "./{ligand_ff_code}.ff/atomtypes.itp"
 """
 
     rest_str_old = """
@@ -612,44 +611,11 @@ def finalndx(abs_path, input_file, ndxout = "index.ndx", chainsID = ["A", "B", "
     tmpndx.close()
     os.chdir(initial_cwd)
 
-def GROMACS_SMAUG_JOB(job_name, conf_file_name = "ASSEMBLE.pdb",
-                               partition="deflt",
-                               output="myjob.out", error="myjob.err",
-                               cpus_per_task=12, gpus = 0, time="2-00:00",
-                               nodes=1, nice=0, version = "2021.1", exclude=None):
-    template = f"""#!/bin/bash
-#SBATCH --partition {partition}
-#SBATCH --output {output}
-#SBATCH --error {error}
-#SBATCH --cpus-per-task={cpus_per_task}
-#SBATCH --time {time}
-#SBATCH --job-name={job_name}
-#SBATCH --nodes={nodes}
-#SBATCH --nice={nice}
-#SBATCH --gpus={gpus}
-    """
-    if exclude:
-        template += f"#SBATCH --exclude={exclude}\n"
-    template += f"""
-\n\n
-# This block is echoing some SLURM variables
-echo "Job execution start: $(date)"
-echo "JobID = $SLURM_JOBID"
-echo "Host = $SLURM_JOB_NODELIST"
-echo "Jobname = $SLURM_JOB_NAME"
-echo "Subcwd = $SLURM_SUBMIT_DIR"
-echo "SLURM_TASKS_PER_NODE = $SLURM_TASKS_PER_NODE"
-echo "SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK"
-echo "SLURM_CPUS_ON_NODE = $SLURM_CPUS_ON_NODE"
-
-cd $(pwd)
-source /data/shared/opt/gromacs/{version}/bin/GMXRC
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:
-
+def GROMACS_JOB(output = 'job.sh', conf='ASSEMBLY.pdb'):
+    GROMACS_section = f"""
 # Minimization
 
-gmx grompp -f step6.0_minimization.mdp -o step6.0_minimization.tpr -c {conf_file_name} -r {conf_file_name} -p topol.top -n index.ndx
+gmx grompp -f step6.0_minimization.mdp -o step6.0_minimization.tpr -c {conf} -r {conf} -p topol.top -n index.ndx
 gmx mdrun -v -deffnm step6.0_minimization
 
 # Equilibration
@@ -658,17 +624,22 @@ cntmax=6
 
 for ((i=${{cnt}}; i<${{cntmax}}+1; i++)); do
 	if [ $i == "1" ]; then
-		gmx grompp -f step6.${{i}}_equilibration.mdp -o step6.${{i}}_equilibration.tpr -c step6.$[${{i}}-1]_minimization.gro -r {conf_file_name} -p topol.top -n index.ndx
+		gmx grompp -f step6.${{i}}_equilibration.mdp -o step6.${{i}}_equilibration.tpr -c step6.$[${{i}}-1]_minimization.gro -r {conf} -p topol.top -n index.ndx
 		gmx mdrun -v -deffnm step6.${{i}}_equilibration -nt 12
 	else
-		gmx grompp -f step6.${{i}}_equilibration.mdp -o step6.${{i}}_equilibration.tpr -c step6.$[${{i}}-1]_equilibration.gro -r {conf_file_name} -p topol.top -n index.ndx
+		gmx grompp -f step6.${{i}}_equilibration.mdp -o step6.${{i}}_equilibration.tpr -c step6.$[${{i}}-1]_equilibration.gro -r {conf} -p topol.top -n index.ndx
 		gmx mdrun -v -deffnm step6.${{i}}_equilibration -nt 12
 	fi
 done
     """
-    return(template)
+    jobsh_obj = jobsh.JOB(
+    sbatch_keywords={'job-name':'assamble'},
+    build_GROMACS_section=GROMACS_section,
+    )
+    jobsh_obj.hostname = 'smaug'
+    jobsh_obj.write(output)
 
-def rdkit_from_pdbqt(pdbqt:PathLike) -> Chem.rdchem.Mol:
+def MolFromPdbqtFile(pdbqt:PathLike) -> Chem.rdchem.Mol:
     """Return a protonanted RDKit molecule.
 
     Parameters
@@ -683,7 +654,7 @@ def rdkit_from_pdbqt(pdbqt:PathLike) -> Chem.rdchem.Mol:
     """
     pdbqt_mol = PDBQTMolecule.from_file(pdbqt, skip_typing=True, poses_to_read=1)
     mol = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)[0]
-    
+
     if not mol:
         pdb_tmp = tempfile.NamedTemporaryFile(suffix='.pdb')
 
@@ -693,13 +664,35 @@ def rdkit_from_pdbqt(pdbqt:PathLike) -> Chem.rdchem.Mol:
         obConversion.ReadFile(mol_obabel, pdbqt)
         obConversion.WriteFile(mol_obabel, pdb_tmp.name)
 
-        mol = Chem.MolFromPDBFile(pdb_tmp.name)
+        # I am not sure why not ony the following line
+        # For some reason Parameterize fails, I think that may be some initialization of Molecule
+        # TODO check here
+        # It generates in TOFF
+        # Exception: Topology and System have different numbers of atoms (10 vs. 24)
+        # It is something releated with the pdb reader
+        # mol = Chem.MolFromPDBFile(pdb_tmp.name)
+        mol0 = Chem.MolFromPDBFile(pdb_tmp.name)
+        mol0 = Chem.AddHs(mol0, addCoords = True)
+        mol = Chem.MolFromSmiles(Chem.MolToSmiles(mol0))
+        mol = Chem.AddHs(mol, addCoords = True)
+        tools.replace_conformer(mol, mol0)
+
         pdb_tmp.close()
     mol = Chem.AddHs(mol, addCoords = True)
     Chem.AssignStereochemistryFrom3D(mol)
+    # I am not sure Why I need this, but the molecule readed from the dp
+    to_return = Chem.MolFromSmiles(Chem.MolToSmiles(mol))
     return mol
 
-def make_ligand_topology(receptor_code, ligand_code, docking_dict, ligand_dict, ligand_ff_code = 'GAFF2', out_dir = '.'):
+def make_ligand_topology(
+    receptor_code:str,
+    ligand_code:str,
+    docking_dict:dict,
+    ligand_dict:dict,
+    ligand_ff_code:str = 'GAFF2',
+    openff_code:str = 'openff_unconstrained-2.0.0.offxml',
+    out_dir:PathLike = '.'):
+
     #First, create the directory
     cwd = os.getcwd()
     tmp_dir = tempfile.TemporaryDirectory(prefix=f'.make_lig_top_{receptor_code}_{ligand_code}_{ligand_ff_code}', dir=cwd)
@@ -707,65 +700,71 @@ def make_ligand_topology(receptor_code, ligand_code, docking_dict, ligand_dict, 
 
     ligand_dir = os.path.join(out_dir, receptor_code, ligand_code)
     tools.makedirs(ligand_dir)
-    
+
     toppar_dir = os.path.join(ligand_dir, "toppar")
     tools.makedirs(os.path.join(toppar_dir))
 
     ligand_ff_dir = (os.path.join(ligand_dir, f"{ligand_ff_code}.ff"))
     tools.makedirs(ligand_ff_dir)
 
-
-
     #Here we are selected the BE pose, because the results were really really god and the orientation was the same. A perfect result
     #With sorted we ensure the order of the chains
-    tools.touch(os.path.join(ligand_dir, "ASSEMBLE.pdb"))#Create first an empty file
-    ASSEMBLE_PDB = pdb.PDB(os.path.join(ligand_dir, "ASSEMBLE.pdb"))#Empty pdb object, take the former empy file
+    tools.touch(os.path.join(ligand_dir, "ASSEMBLY.pdb"))#Create first an empty file
+    ASSEMBLE_PDB = pdb.PDB(os.path.join(ligand_dir, "ASSEMBLY.pdb"))#Empty pdb object, take the former empy file
     for i, chain in enumerate(sorted(docking_dict[receptor_code][ligand_code])):
         #Here we are taking the Best Energy conformation
-        if ligand_ff_code:
-            name = os.path.basename(docking_dict[receptor_code][ligand_code][chain]["BE"]).split(".")[0]
-            # Get the docking conformation
-            ref_mol = rdkit_from_pdbqt(docking_dict[receptor_code][ligand_code][chain]["BE"])
+        name = os.path.basename(docking_dict[receptor_code][ligand_code][chain]["BE"]).split(".")[0]
+        # Get the docking conformation
+        docking_mol = MolFromPdbqtFile(docking_dict[receptor_code][ligand_code][chain]["BE"])
+        if ligand_ff_code == 'GAFF2':
             # Add Docking conformation and change name to mol2
             mol2 = tools.Mol2(ligand_dict[ligand_code]["mol2"])
-            mol2.AddConformer(ref_mol)
+            mol2.AddConformer(docking_mol)
             mol2.ChangeName(f"LI{chain}")
             mol2.write(f"{name}.mol2")
             # Create the topology
             run_tleap(f"{name}.mol2",ligand_dict[ligand_code]["frcmod"])
-            # Get top and pdb files
-            tools.mv(os.path.join(f"LI{chain}.amb2gmx", f"LI{chain}_GMX.top"),'.')
-            tools.mv(os.path.join(f"LI{chain}.amb2gmx", f"LI{chain}_GMX.pdb"),'.')
-            # Here I have to add the condition when OpenFF is used
-            
-            # tleap export many different files, we are interested on:
-            #     LI{chain}_GMX.pdb
-            #     LI{chain}_GMX.top
-            # The rest of the files are not important for the moment, so, we will delet them:
-            #     ["*.crd", "*.mol2", "*.prmtop", "*.out"]
-            # However we will work with the PDB object, so we will not need after getting
-            # the atoms the file LI{chain}_GMX.pdb, so, we could also delet it.
-            # Also we need to add the f"{name}.xyz" file
-            # rm_list = ["*.crd", "*.mol2", "*.prmtop", "*.mdp", "*.out", f"LI{chain}_GMX.pdb",f"LI{chain}_GMX.gro", f"{name}.xyz"]
-        else:
-            raise NotImplementedError(ligand_ff_code)
 
-       
+            # Convert gro to pdb
+            gro_file = f"LI{chain}.amb2gmx/LI{chain}_GMX.gro"
+            obConversion = openbabel.OBConversion()
+            obConversion.SetInAndOutFormats("gro", "pdb")
+            mol_obabel = openbabel.OBMol()
+            obConversion.ReadFile(mol_obabel, gro_file)
+            obConversion.WriteFile(mol_obabel,f"LI{chain}.pdb")
+
+            # Get topology
+            tools.mv(os.path.join(f"LI{chain}.amb2gmx", f"LI{chain}_GMX.top"),f"./LI{chain}.top")
+            # Here I have to add the condition when OpenFF is used
+        elif ligand_ff_code == 'OpenFF':
+            paramaterizer = Parameterize(
+                force_field_code = openff_code,
+                ext_types = ['top', 'pdb'],
+                hmr_factor = None,
+                overwrite = True,
+                safe_naming_prefix = 'z',
+                out_dir = '.',
+            )
+            paramaterizer(input_mol=docking_mol, mol_resi_name=f"LI{chain}")
+            # print(os.listdir('.'))
+            # raise RuntimeError
+
+
         #Here we are concatenating all the atom objects of each ligand in one
 
-        tmp_LIGAND = pdb.PDB(f"LI{chain}_GMX.pdb")
+        tmp_LIGAND = pdb.PDB(f"LI{chain}.pdb")
         #This is nedded because if not all the ligands have the same chain "A"
         for atom in tmp_LIGAND.atoms:
             atom.chainID = chain
 
         ASSEMBLE_PDB.atoms += tmp_LIGAND.atoms
 
-
-        # Convert the topology to itp 
-        ligand_topology = top.TOP(f"LI{chain}_GMX.top")
+        # Convert the topology to itp
+        ligand_topology = top.TOP(f"LI{chain}.top")
         ligand_topology.to_itp()
-        ligand_topology.make_posres(posre_name = f"LI{chain}")
-        ligand_topology.write(os.path.join(toppar_dir, f"LI{chain}"))
+        ligand_topology.make_posres(posre_name = f"LI{chain}", out_dir=toppar_dir)
+
+        ligand_topology.write(os.path.join(toppar_dir, f"LI{chain}.itp"))
 
         # Get the atomtypes section only one time
         if i == 0:
@@ -780,7 +779,7 @@ def make_ligand_topology(receptor_code, ligand_code, docking_dict, ligand_dict, 
             ligand_topology.write(os.path.join(ligand_ff_dir,"atomtypes.itp"))
 
         # [tools.mv(item, toppar_dir) for item in [f"LI{chain}.itp", f"LI{chain}_posre.itp"]]
-    
+
     os.chdir(cwd)
     tmp_dir.cleanup()
     return ASSEMBLE_PDB
@@ -789,20 +788,19 @@ def make_ligand_topology(receptor_code, ligand_code, docking_dict, ligand_dict, 
     #Becasue we dont especified, it will use the directory used for its construction
 
 
-def autoassamble(
+def assembly(
     ligands_path_root:PathLike = './ligand',
     receptors_path_root:PathLike = './receptor',
     dockings_path_root:PathLike = './run_vina_run',
-
     receptor_codes:list[str] = None,
     ligand_codes:list[str] = None,
     ligand_ff_code = 'GAFF2', # OpenFF
+    openff_code:str = 'openff_unconstrained-2.0.0.offxml',
     out_dir = 'Assamble',
-    
     ):
-    
+
     # Create a temporal working directory
-    tmp_wd = tempfile.TemporaryDirectory(prefix='.autoassamble', dir='.')
+    tmp_wd = tempfile.TemporaryDirectory(prefix='.selfassembly', dir='.')
     # Convert to absolute path
     ligands_path_root = os.path.abspath(ligands_path_root)
     receptors_path_root = os.path.abspath(receptors_path_root)
@@ -811,7 +809,7 @@ def autoassamble(
     tools.makedirs(out_dir)
     cwd = os.getcwd()
     os.chdir(tmp_wd.name)
-    
+
     ff_code_translate = {
         'gaff2': 'GAFF2',
         'openff': 'OpenFF',
@@ -835,15 +833,15 @@ def autoassamble(
     )
     if receptor_codes:
         for receptor in list(receptor_dict):
-            if receptor not in receptor_dict:
+            if receptor not in receptor_codes:
                 del receptor_dict[receptor]
-                del ligand_dict[receptor]
                 del docking_dict[receptor]
     if ligand_codes:
         for receptor in list(docking_dict):
             for ligand in list(docking_dict[receptor]):
                 if ligand not in ligand_codes:
                     del docking_dict[receptor][ligand]
+                    del ligand_dict[ligand]
 
     for receptor in receptor_dict:
 
@@ -871,7 +869,6 @@ def autoassamble(
         #Storage the PROT_PDB and chains
         PROT_PDB = pdb.PDB(receptor_dict[receptor]['protein'])
 
-
         #Update the protein with the corresponded force field
         #Probably I also need to consider use the final force field on that step to
         #avoid this second evaluation of pka2gmx
@@ -885,14 +882,6 @@ def autoassamble(
                     ph = 7.0,
                     pKa = propka)
             tools.mv(f"{receptor}.pka", receptor_dict[receptor]["pKa"])
-
-            #Me quede por aquiiiiiii, recordar elimianr el receptor del directorio pq sino no va a entrar
-            #HEre we are adding a new elemnt to the dict with the update receptor
-            #Take a closer look that the assumption that protein name is the same
-            #as the directory, becasue pka2gmx will export with a input
-            #receptor1.pdb >>> receptor1_update.pdb. And we are assuming that.
-            #This is totally True is the previues steps were done with examples/Vina_Docking/vina_auto.py
-
             tools.mv(f"{receptor}_update.pdb", receptor_dict[receptor]["update"])
 
 
@@ -904,7 +893,7 @@ def autoassamble(
 
             tools.cp("topol.top", os.path.join(dirname, f"original_topol_{receptor}_update.top"))
             numb_lipids = len(pdb.PDB(receptor_dict[receptor]["membrane"]).get_residues())
-            topoltop("topol.top", numb_lipids, out_name = None)
+            topoltop("topol.top", numb_lipids, ligand_ff_code = ligand_ff_code, out_name = None)
             tools.mv("topol.top", receptor_dict[receptor]["topol"])
 
             #Create the side chain and back bone posre itp files
@@ -923,6 +912,17 @@ def autoassamble(
             tools.makedirs(receptor_dict[receptor]["toppar"])
             [tools.mv(item, receptor_dict[receptor]["toppar"]) for item in glob(f"topol_Protein_chain_{PROT_PDB.get_chains()}.itp")+glob(f"backbone_posre_{PROT_PDB.get_chains()}.itp")+glob(f"sidechain_posre_{PROT_PDB.get_chains()}.itp")]
 
+        # Change the code of the of the force field in the topology
+        if ligand_ff_code == 'OpenFF':
+            possible_old_ff_code = 'GAFF2'
+        else:
+            possible_old_ff_code = 'OpenFF'
+        with open(receptor_dict[receptor]["topol"], 'r') as f:
+            data = f.read()
+            data = data.replace(possible_old_ff_code, ligand_ff_code)
+        with open(receptor_dict[receptor]["topol"], 'w') as f:
+            f.write(data)
+
         for ligand in ligand_dict:
 
             # Make ligand topologies
@@ -934,26 +934,28 @@ def autoassamble(
                 docking_dict = docking_dict,
                 ligand_dict = ligand_dict,
                 ligand_ff_code = ligand_ff_code,
+                openff_code = openff_code,
                 out_dir = out_dir,)
             ASSEMBLE_PDB.atoms = pdb.PDB(receptor_dict[receptor]["update"]).atoms + pdb.PDB(receptor_dict[receptor]["membrane"]).atoms + ASSEMBLE_PDB.atoms
             # BEcasue the path is the correct in make_ligand_topology,
             # there is not need to specify it again: out_dir/receptor/ligand
-            ASSEMBLE_PDB.write(os.path.join(assemble_path), "ASSEMBLE.pdb")
+            ASSEMBLE_PDB.write(os.path.join(assemble_path, "ASSEMBLY.pdb"))
 
-            [tools.cp(item, assemble_path ,r = True) for item in [receptor_dict[receptor]["toppar"], receptor_dict[receptor]["topol"], protein_ff_path, lipid_ff_path, os.path.join(mdp_path, "*")]]
-            
+            [tools.cp(item, assemble_path ,r = True) for item in [receptor_dict[receptor]["toppar"], receptor_dict[receptor]["topol"], protein_ff_path, lipid_ff_path, os.path.join(mdp_path, "*.mdp")]]
+
             tools.cp(os.path.join(lipid_ff_path, "Slipids_2020_itp_files", "POPC.itp"), os.path.join(assemble_path, 'toppar'))
 
             #Now solvate the system
-            gmxsolvate(assemble_path, "ASSEMBLE.pdb", "topol.top", receptor_dict[receptor]["cryst1"]["vector"], editconf_angles = receptor_dict[receptor]["cryst1"]["angles"], editconf_bt = "tric", solvate_cs = "spc216", out_file = "ASSEMBLE.pdb")
+            gmxsolvate(assemble_path, "ASSEMBLY.pdb", "topol.top", receptor_dict[receptor]["cryst1"]["vector"], editconf_angles = receptor_dict[receptor]["cryst1"]["angles"], editconf_bt = "tric", solvate_cs = "spc216", out_file = "ASSEMBLY.pdb")
 
             #Generate the ions
-            gmxions(assemble_path, "ASSEMBLE.pdb", "topol.top", out_file = "ASSEMBLE.pdb")
+            gmxions(assemble_path, "ASSEMBLY.pdb", "topol.top", out_file = "ASSEMBLY.pdb")
 
             #Now the index file is generated
-            finalndx(assemble_path, "ASSEMBLE.pdb", chainsID = PROT_PDB.get_chains())
-            with open(os.path.join(assemble_path, "job.sh"), "w") as job:
-                job.write(GROMACS_SMAUG_JOB(f"{receptor}_{ligand}"))
+            finalndx(assemble_path, "ASSEMBLY.pdb", chainsID = PROT_PDB.get_chains())
+
+            GROMACS_JOB(os.path.join(assemble_path, "job.sh"))
+
     os.chdir(cwd)
     tmp_wd.cleanup()
 

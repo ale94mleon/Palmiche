@@ -2,7 +2,7 @@
 
 
 # step6.0
-system="ASSEMBLE.pdb"
+system="ASSEMBLY.pdb"
 
 gmx grompp -f step6.0_minimization.mdp -o step6.0_minimization.tpr -c ${system} -r ${system} -p topol.top -n index.ndx
 gmx mdrun -v -deffnm step6.0_minimization

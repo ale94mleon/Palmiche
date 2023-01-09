@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import palmiche.utils.pdb as pdb
-from palmiche.utils.assembleMD import fix_pdb
+from palmiche.utils.self_assembly_MD import fix_pdb
 import palmiche.utils.tools as tools
 import os.path
 

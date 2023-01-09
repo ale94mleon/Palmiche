@@ -70,16 +70,16 @@ sbatch_translation = {
     'n':'ntasks', 'ntasks':'ntasks',
     'ntasks-per-core':'ntasks-per-core',
     'ntasks-per-gpu':'ntasks-per-gpu',
-    'ntasks-per-node':'ntasks-per-node',  
-    'ntasks-per-socket':'ntasks-per-socket',    
+    'ntasks-per-node':'ntasks-per-node',
+    'ntasks-per-socket':'ntasks-per-socket',
     'open-mode':'open-mode',
     'o':'output', 'output':'output',
     'O':'overcommit', 'overcommit':'overcommit',
     's':'oversubscribe', 'oversubscribe':'oversubscribe',
     'parsable':'parsable',
     'p':'partition', 'partition':'partition',
-    'power':'power',    
-    'priority':'priority',    
+    'power':'power',
+    'priority':'priority',
     'profile':'profile',
     'propagate':'propagate',
     'q':'qos', 'qos':'qos',
@@ -87,7 +87,7 @@ sbatch_translation = {
     'reboot':'reboot',
     'requeue':'requeue',
     'reservation':'reservation',
-    'signal':'signal',  
+    'signal':'signal',
     'sockets-per-node':'sockets-per-node',
     'spread-job':'spread-job',
     'switches':'switches',
@@ -144,19 +144,19 @@ class JOB:
         else:
             self.sbatch_keywords['cpus-per-task'] = 12
             self.sbatch_keywords['partition'] = 'deflt'
-         
+
         # Translating the user sbatch_keywords in case that something was provided
-        if sbatch_keywords:       
+        if sbatch_keywords:
             sbatch_keywords_translated = {}
             for key in sbatch_keywords:
                 try:
                     sbatch_keywords_translated[sbatch_translation[key]] = sbatch_keywords[key]
                 except:
-                    raise Exception(f'The keyword {key} of sbatch_keywords is not a valid sbatch keyword argument')       
-            
+                    raise Exception(f'The keyword {key} of sbatch_keywords is not a valid sbatch keyword argument')
+
             # Update with the user sbatch keword provided
             self.sbatch_keywords.update(sbatch_keywords_translated)
-            
+
             # Setting the correct time
             if 'time' not in sbatch_keywords_translated:
                 self.sbatch_keywords['time'] = self.default_times[self.sbatch_keywords['partition']]
@@ -169,9 +169,9 @@ class JOB:
             'v':True,
         }
         # Updating the values of self.mdrun_keywords with the provided by the user
-        if mdrun_keywords:        
+        if mdrun_keywords:
             self.mdrun_keywords.update(mdrun_keywords)
-        
+
     # Now we will start to construct the file
     def string(self):
         job_str = '#!/bin/bash\n'
@@ -206,7 +206,7 @@ class JOB:
                 'else\n'\
                 f'  module load gromacs@{self.GROMACS_version}\n'\
                 'fi\n\n'\
-        
+
         job_str += 'cd $(pwd)\n\n'
         # Constructing GROMACS command
         if self.build_GROMACS_section:
@@ -241,7 +241,7 @@ class JOB:
             out.write(self.string())
 
 if __name__ == '__main__':
-    
+
     pass
     G = JOB(mdrun_keywords={'deffnm': 'mine'}, build_GROMACS_section='gmx mdrun -nt 12 -cpi -stepout 5000 -v -deffnm taka >& tak.lis')
     print(G.string())
