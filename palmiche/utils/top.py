@@ -3,6 +3,7 @@
 import pandas as pd
 import os
 from palmiche import __version__
+from palmiche.utils.tools import PathLike
 from typing import Union, Iterable
 
 class TOP:
@@ -143,7 +144,12 @@ class TOP:
         df.set_index('section', inplace=True)
         self.data = pd.concat([self.data,df])
 
-    def make_posres(self, heavy_atoms_only = True, posre_name:str = None, fcx_fcy_fcz:Iterable = ('POSRES_LIG','POSRES_LIG','POSRES_LIG')):
+    def make_posres(
+        self,
+        heavy_atoms_only:bool = True,
+        posre_name:str = None,
+        fcx_fcy_fcz:Iterable = ('POSRES_LIG','POSRES_LIG','POSRES_LIG'),
+        out_dir:PathLike= '.'):
         """It create a position restraint itp file for GROMACS.
         The corresponded include statement is added to the topology.
 
@@ -155,6 +161,8 @@ class TOP:
             The name of the position restrain file, by default None
         fcx_fcy_fcz : Iterable, optional
             The xyz component of the force constant, by default ('POSRES_LIG','POSRES_LIG','POSRES_LIG')
+        out_dir : PathLike, optional
+            The directory to output the position restrain file, by default '.'
         """
         if not posre_name:
             posre_name = os.path.basename(self.file).split('.')[0]
@@ -178,7 +186,7 @@ class TOP:
         else:
             atom_indexes = len(list(atoms))
         #Writing the posre file
-        with open(f"{posre_name}_posre.itp", "w") as posre:
+        with open(os.path.join(out_dir, f"{posre_name}_posre.itp"), "w") as posre:
             posre.write("[ position_restraints ]\n")
             posre.write(f"{';i':<5}{'funct':^5}{'fcx':^20}{'fcy':^20}{'fcz':^20}\n")
             for atom_index in atom_indexes:
