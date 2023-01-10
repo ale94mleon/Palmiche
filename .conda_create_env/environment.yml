@@ -14,9 +14,9 @@ dependencies:
   - vina
   - conda-build
   - openbabel
-  - ambertools
-  - openff-toolkit
-  - openmm
+  # - ambertools
+  # - openff-toolkit
+  # - openmm
   - pip:
     - pubchempy
     - tqdm
