@@ -107,7 +107,7 @@ sbatch_translation = {
     'wrap':'wrap',
 }
 class JOB:
-    def __init__(self, sbatch_keywords = None, GROMACS_version = 2021.4, mdrun_keywords = None, build_GROMACS_section = None) -> None:
+    def __init__(self, sbatch_keywords = None, GROMACS_version = 2021.5, mdrun_keywords = None, build_GROMACS_section = None) -> None:
         self.hostname = socket.gethostname()
         self.GROMACS_version = GROMACS_version
         self.build_GROMACS_section = build_GROMACS_section
@@ -243,5 +243,6 @@ class JOB:
 if __name__ == '__main__':
 
     pass
-    G = JOB(mdrun_keywords={'deffnm': 'mine'}, build_GROMACS_section='gmx mdrun -nt 12 -cpi -stepout 5000 -v -deffnm taka >& tak.lis')
+    # G = JOB(mdrun_keywords={'deffnm': 'mine'}, build_GROMACS_section='gmx mdrun -nt 12 -cpi -stepout 5000 -v -deffnm taka >& tak.lis')
+    G = JOB()
     print(G.string())
