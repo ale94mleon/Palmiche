@@ -214,7 +214,7 @@ class JOB:
         else:
             if 's' not in self.mdrun_keywords and 'deffnm' not in self.mdrun_keywords:
                 tpr_name = glob.glob('*.tpr')[0].split('.')[0]
-                CMD_GROMACS = f'gmx mdrun -v -deffnm {tpr_name}'
+                CMD_GROMACS = f'gmx mdrun -deffnm {tpr_name}'
             else:
                 CMD_GROMACS = 'gmx mdrun'
                 try:
@@ -243,6 +243,15 @@ class JOB:
 if __name__ == '__main__':
 
     pass
-    # G = JOB(mdrun_keywords={'deffnm': 'mine'}, build_GROMACS_section='gmx mdrun -nt 12 -cpi -stepout 5000 -v -deffnm taka >& tak.lis')
-    G = JOB()
-    print(G.string())
+    job = JOB(
+        GROMACS_version = 2021.5,
+        sbatch_keywords= {
+            'job-name':f"production"
+        },
+        mdrun_keywords={
+            'update': 'gpu',
+            'maxh':48,
+            }
+    )
+    job.hostname = 'smaug'
+    print(job.string())
