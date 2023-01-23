@@ -635,8 +635,8 @@ done
     jobsh_obj = jobsh.JOB(
     sbatch_keywords={'job-name':'assamble'},
     build_GROMACS_section=GROMACS_section,
+    hostname='smaug',
     )
-    jobsh_obj.hostname = 'smaug'
     jobsh_obj.write(output)
 
 def MolFromPdbqtFile(pdbqt:PathLike) -> Chem.rdchem.Mol:
