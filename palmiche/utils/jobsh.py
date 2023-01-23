@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import socket, glob
+import socket, glob, os
 sbatch_translation = {
     #https://slurm.schedmd.com/sbatch.html
     'A':'account',
@@ -107,8 +107,13 @@ sbatch_translation = {
     'wrap':'wrap',
 }
 class JOB:
-    def __init__(self, sbatch_keywords = None, GROMACS_version = 2021.5, mdrun_keywords = None, build_GROMACS_section = None) -> None:
-        self.hostname = socket.gethostname()
+    def __init__(self, sbatch_keywords = None, GROMACS_version = 2021.5, mdrun_keywords = None, build_GROMACS_section = None, hostname = None) -> None:
+        self.user_sbatch_keywords = sbatch_keywords
+        self.user_mdrun_keywords = mdrun_keywords
+        if hostname:
+            self.hostname = hostname.lower()
+        else:
+            self.hostname = socket.gethostname()
         self.GROMACS_version = GROMACS_version
         self.build_GROMACS_section = build_GROMACS_section
         self.default_times = {
@@ -122,8 +127,13 @@ class JOB:
             'gpu': '2-00:00:00',
             'gpu:test': '30:00',
             'gpu-hub':'2-00:00:00',
+            'uds-hub':'2-00:00:00',
         }
-        self.sbatch_keywords = {
+        self._set_sbatch_keywords()
+        self._set_mdrun_keywords()
+
+    def _set_sbatch_keywords(self):
+        default_sbatch_keywords = {
             'job-name': 'run',
             'output': 'myjob.out',
             'error': 'myjob.err',
@@ -133,49 +143,61 @@ class JOB:
         }
         # This part need to be improved
         if self.hostname == 'smaug' or self.hostname.startswith('fang'):
-            self.sbatch_keywords['cpus-per-task'] = 12
-            self.sbatch_keywords['partition'] = 'deflt'
+            default_sbatch_keywords['cpus-per-task'] = 12
+            default_sbatch_keywords['partition'] = 'deflt'
         elif self.hostname.startswith('gwd'): # This is quiet lazy, but is because I don't know the names of the gwdg nodes
-            self.sbatch_keywords['cpus-per-task'] = 10
+            default_sbatch_keywords['cpus-per-task'] = 10
             self.sbatch_keywords['partition'] = 'gpu-hub'#'medium'#'gpu-hub'
-            self.sbatch_keywords['exclude'] = 'gwdo[161-180]'
-            # self.sbatch_keywords['account'] = 'all'
-            # self.sbatch_keywords['constraint'] = 'scratch'
+            default_sbatch_keywords['exclude'] = 'gwdo[161-180]'
+            default_sbatch_keywords['account'] = 'all'
+            default_sbatch_keywords['constraint'] = 'scratch'
+        elif self.hostname.startswith('rarp'):
+            default_sbatch_keywords['partition'] = 'uds-hub'
+            default_sbatch_keywords['cpus-per-task'] = 16
+            default_sbatch_keywords['constraint'] = 'Ryzen_3975WX'
         else:
-            self.sbatch_keywords['cpus-per-task'] = 12
-            self.sbatch_keywords['partition'] = 'deflt'
+            default_sbatch_keywords['cpus-per-task'] = 12
+            default_sbatch_keywords['partition'] = 'deflt'
 
         # Translating the user sbatch_keywords in case that something was provided
-        if sbatch_keywords:
+        if self.user_sbatch_keywords:
             sbatch_keywords_translated = {}
-            for key in sbatch_keywords:
+            for key in self.user_sbatch_keywords:
                 try:
-                    sbatch_keywords_translated[sbatch_translation[key]] = sbatch_keywords[key]
+                    sbatch_keywords_translated[sbatch_translation[key]] = self.user_sbatch_keywords[key]
                 except:
                     raise Exception(f'The keyword {key} of sbatch_keywords is not a valid sbatch keyword argument')
 
             # Update with the user sbatch keword provided
-            self.sbatch_keywords.update(sbatch_keywords_translated)
+            default_sbatch_keywords.update(sbatch_keywords_translated)
+            self.sbatch_keywords = default_sbatch_keywords
 
             # Setting the correct time
             if 'time' not in sbatch_keywords_translated:
                 self.sbatch_keywords['time'] = self.default_times[self.sbatch_keywords['partition']]
 
-        # Deffining default options. In case that flags was provided, the value must be a bool type
-        self.mdrun_keywords = {
-            'nt': self.sbatch_keywords['cpus-per-task'], # This is not so straightforwart. Because ntasks and cpus-per-task, but is a default option, you could just provided a new value
+    def _set_mdrun_keywords(self):
+        # Defining default options. In case that flags was provided, the value must be a bool type
+        default_mdrun_keywords = {
+            'nt': self.sbatch_keywords['cpus-per-task'], # This is not so straightforward. Because ntasks and cpus-per-task, but is a default option, you could just provided a new value
             'cpi': True,
             'stepout': 5000,
             'v':True,
         }
         # Updating the values of self.mdrun_keywords with the provided by the user
-        if mdrun_keywords:
-            self.mdrun_keywords.update(mdrun_keywords)
+        if self.user_mdrun_keywords:
+            default_mdrun_keywords.update(self.user_mdrun_keywords)
+            self.mdrun_keywords = default_mdrun_keywords
+
+    def change_hostname(self, hostname):
+        self.hostname = hostname
+        self._set_sbatch_keywords()
+        self._set_mdrun_keywords()
 
     # Now we will start to construct the file
     def string(self):
         job_str = '#!/bin/bash\n'
-        if self.hostname == 'smaug' or self.hostname.startswith('fang') or self.hostname.startswith('gwd'):
+        if self.hostname == 'smaug' or self.hostname.startswith('fang') or self.hostname.startswith('gwd') or self.hostname.startswith('rarp'):
             # SBATCH section
             for key in self.sbatch_keywords:
                 job_str += f"#SBATCH --{key}={self.sbatch_keywords[key]}\n"
@@ -205,7 +227,10 @@ class JOB:
                 f'  module load  ivybridge/gromacs@{self.GROMACS_version}\n'\
                 'else\n'\
                 f'  module load gromacs@{self.GROMACS_version}\n'\
-                'fi\n\n'\
+                'fi\n\n'
+            elif self.hostname.startswith('rarp'):
+                job_str += "source /groups/CBG/opt/spack-0.18.1/shared.bash\n"\
+                f'module load gromacs/{self.GROMACS_version}\n\n'
 
         job_str += 'cd $(pwd)\n\n'
         # Constructing GROMACS command
@@ -213,15 +238,15 @@ class JOB:
             job_str += self.build_GROMACS_section
         else:
             if 's' not in self.mdrun_keywords and 'deffnm' not in self.mdrun_keywords:
-                tpr_name = glob.glob('*.tpr')[0].split('.')[0]
+                tpr_name, _ = os.path.splitext(glob.glob('*.tpr')[0])
                 CMD_GROMACS = f'gmx mdrun -deffnm {tpr_name}'
             else:
                 CMD_GROMACS = 'gmx mdrun'
                 try:
-                    tpr_name = self.mdrun_keywords['s'][0].split('.')[0]
+                    tpr_name = self.mdrun_keywords['s'].split('.')[0]
                 except:
                     try:
-                        tpr_name = self.mdrun_keywords['deffnm'][0].split('.')[0]
+                        tpr_name = self.mdrun_keywords['deffnm'].split('.')[0]
                     except:
                         tpr_name = 'log'
 
@@ -241,17 +266,21 @@ class JOB:
             out.write(self.string())
 
 if __name__ == '__main__':
-
     pass
-    job = JOB(
-        GROMACS_version = 2021.5,
-        sbatch_keywords= {
-            'job-name':f"production"
-        },
-        mdrun_keywords={
-            'update': 'gpu',
-            'maxh':48,
-            }
-    )
-    job.hostname = 'smaug'
-    print(job.string())
+    # job = JOB(
+    #     GROMACS_version = 2021.5,
+    #     sbatch_keywords= {
+    #         'job-name':f"production"
+    #     },
+    #     mdrun_keywords={
+    #         'update': 'gpu',
+    #         'maxh':48,
+    #         # 'deffnm': 'imi',
+    #         },
+    # hostname = 'rarp1',
+    # )
+    # print(job.string())
+    # job.change_hostname('smaug')
+    # print(job.string())
+    # job.change_hostname('work')
+    # print(job.string())
