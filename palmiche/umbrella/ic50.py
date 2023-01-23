@@ -73,9 +73,10 @@ def main(BoundRegion, radium, sigma, absolute_temperature, PmfXvgPath, integrato
     Nav = 6.02214076E23
     data = xvg.XVG(PmfXvgPath).data
     data = data[data[:,0] < 4.5]
-    data = data[data[:,0] > 0.1]
+    data = data[data[:,0] > 0.00]
     data = np.array(sorted(data,key=lambda x:x[0])) # I am not able to use, the sort method of a numpy array in this case
     xmax = np.max(data[:,0])
+    print(data[:,1].max()-data[:,1].min())
 
     try:
         x1 = BoundRegion[0]
