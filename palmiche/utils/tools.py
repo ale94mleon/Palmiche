@@ -716,13 +716,13 @@ def replace_conformer(mol: Chem.rdchem.Mol, ref_mol: Chem.rdchem.Mol, inplace: b
         from copy import deepcopy
         mol = deepcopy(mol)
     assert Chem.MolToSmiles(mol) == Chem.MolToSmiles(ref_mol), f"\n{Chem.MolToSmiles(mol)}\n{Chem.MolToSmiles(ref_mol)}"
-    
+
     try:
          mol_conf = mol.GetConformer()
     except ValueError:
         AllChem.EmbedMolecule(mol)
         mol_conf = mol.GetConformer()
-    
+
     try:
         ref_mol.GetConformer()
     except ValueError:
@@ -790,7 +790,7 @@ class Mol2:
                     atom.SetProp('atom_type',atom_type)
                 print("The mol was created succesfully!")
             else:
-                print("It is not possible to convert the mol2 to RDKit molecule.")
+                print("\nIt is not possible to convert the mol2 to RDKit molecule.\n")
 
     def AddConformer(self, ref_mol:Chem.rdchem.Mol) -> None:
         """Add to self.mol the conformation of ref_mol.
@@ -804,7 +804,7 @@ class Mol2:
             The reference molecule with a conformational state.
         """
         replace_conformer(self.mol, ref_mol, inplace=True)
-    
+
     def ChangeName(self, mol_name:str) -> None:
         """Change name of the molecule
 
@@ -816,7 +816,7 @@ class Mol2:
         """
         self._name_changed_ = True
         self.mol.SetProp('_Name', mol_name)
-    
+
     def write(self, out_file:PathLike) -> None:
         """Write the molecue in mol2 format.
 
@@ -827,7 +827,7 @@ class Mol2:
         """
         with open(self.mol2_path, 'r') as f:
             lines = f.readlines()
-        
+
         for i in range(len(lines)):
             if lines[i].startswith('@<TRIPOS>ATOM'):
                 atom_idx = 0
