@@ -611,7 +611,7 @@ def finalndx(abs_path, input_file, ndxout = "index.ndx", chainsID = ["A", "B", "
     tmpndx.close()
     os.chdir(initial_cwd)
 
-def GROMACS_JOB(output = 'job.sh', conf='ASSEMBLY.pdb'):
+def GROMACS_JOB(output = 'job.sh', conf='ASSEMBLY.pdb', hostname = 'smaug', GROMACS_version = '2021.5'):
     GROMACS_section = f"""
 # Minimization
 
@@ -634,8 +634,9 @@ done
     """
     jobsh_obj = jobsh.JOB(
     sbatch_keywords={'job-name':'assamble'},
+    GROMACS_version=GROMACS_version,
     build_GROMACS_section=GROMACS_section,
-    hostname='smaug',
+    hostname=hostname,
     )
     jobsh_obj.write(output)
 
@@ -654,7 +655,6 @@ def MolFromPdbqtFile(pdbqt:PathLike) -> Chem.rdchem.Mol:
     """
     pdbqt_mol = PDBQTMolecule.from_file(pdbqt, skip_typing=True, poses_to_read=1)
     mol = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)[0]
-
     if not mol:
         pdb_tmp = tempfile.NamedTemporaryFile(suffix='.pdb')
 
@@ -681,7 +681,7 @@ def MolFromPdbqtFile(pdbqt:PathLike) -> Chem.rdchem.Mol:
     mol = Chem.AddHs(mol, addCoords = True)
     Chem.AssignStereochemistryFrom3D(mol)
     # I am not sure Why I need this, but the molecule readed from the dp
-    to_return = Chem.MolFromSmiles(Chem.MolToSmiles(mol))
+    # to_return = Chem.MolFromSmiles(Chem.MolToSmiles(mol))
     return mol
 
 def make_ligand_topology(
@@ -797,6 +797,9 @@ def assembly(
     ligand_ff_code = 'GAFF2', # OpenFF
     openff_code:str = 'openff_unconstrained-2.0.0.offxml',
     out_dir = 'Assamble',
+    hostname = 'smaug',
+    GROMACS_version = '2021.5',
+
     ):
 
     # Create a temporal working directory
@@ -954,7 +957,7 @@ def assembly(
             #Now the index file is generated
             finalndx(assemble_path, "ASSEMBLY.pdb", chainsID = PROT_PDB.get_chains())
 
-            GROMACS_JOB(os.path.join(assemble_path, "job.sh"))
+            GROMACS_JOB(os.path.join(assemble_path, "job.sh"), hostname=hostname, GROMACS_version=GROMACS_version)
 
     os.chdir(cwd)
     tmp_wd.cleanup()
