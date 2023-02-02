@@ -101,6 +101,7 @@ def setup_production(
     ligands,
     flat_bottom_init,
     flat_bottom_k,
+    orient_restrain,
     orient_restrain_init,
     orient_restrain_k,
     orient_restrain_vec,
@@ -129,7 +130,7 @@ def setup_production(
             time_progression, weights_info = weights.get_weights_from_log(log_center_cluster_abspath, plot = False)
             # Check if the time for the equilibration of the weights was reached
             if time_progression[-1] >= simulated_tempering_weights_equilibration_time:
-                # Prepearing all the necesary files and directories for the memebers of the current cluster
+                # Preparing all the necessary files and directories for the memebers of the current cluster
 
                 window_ID = frame2window[frame]
                 conf = f"conf{frame}.gro"
@@ -151,6 +152,7 @@ def setup_production(
                     # Options for the cylinder and orientation restraints
                     flat_bottom_init=flat_bottom_init,
                     flat_bottom_k=flat_bottom_k,
+                    orient_restrain=orient_restrain,
                     orient_restrain_init=orient_restrain_init,
                     orient_restrain_k=orient_restrain_k,
                     orient_restrain_vec=orient_restrain_vec,
@@ -185,6 +187,7 @@ def setup_production(
                     # Options for the cylinder and orientation restraints
                     flat_bottom_init=flat_bottom_init,
                     flat_bottom_k=flat_bottom_k,
+                    orient_restrain=orient_restrain,
                     orient_restrain_init=orient_restrain_init,
                     orient_restrain_k=orient_restrain_k,
                     orient_restrain_vec=orient_restrain_vec,
@@ -255,6 +258,7 @@ def main(input_path_dict,
         pull_coord_vec = [0.0, 0.0, -1.0],
         flat_bottom_init=0.5,  # This is the radium
         flat_bottom_k=400, # This leads to sigma = 0.07942668639322366, this give us nice results, but we could test with 1000 that lead around 0.05 sigma
+        orient_restrain = True,
         orient_restrain_init=45,  # 0.349, #; 20 degrees 20/180*3.141
         orient_restrain_k=2.5,  # #; in kJ/mol/rad^2, leads to sigma = 1 degrees k = KbT/sigma^2
         # This means that the vector will be calculate in suing the initial orientation fo the ligands. if a vector is provied, for example (0,0,-1), then this will be used
@@ -451,21 +455,22 @@ def main(input_path_dict,
         # Creating the average oriented vector. This vector is used for the orientation restrain of the ligands. This is done is order to have
         # more consisten the simulation and the stadistic better for the 5 PMF, because if not he ligands have different orientation, and that means that the PMFs are not comparables.
         # I will calculate only fi the vector provi
-        try:  # I need to use try, because if a list was provided then, will raise an error, because the list doesn't have strip() method
-            if orient_restrain_vec.strip().lower() == "calculate":
-                # first I need to create a temporal tpr file
-                mdptmp = tempfile.NamedTemporaryFile(suffix=".mdp")
-                tprtmp = tempfile.NamedTemporaryFile(suffix=".tpr")
-                tools.run(
-                    f"export GMX_MAXBACKUP=-1; gmx grompp -f {mdptmp.name} -c {os.path.basename(input_path_dict['conf'])} -r {os.path.basename(input_path_dict['conf'])} -p {os.path.basename(input_path_dict['topol'])} -n {input_path_dict['ndx']} -o {tprtmp.name}")
+        if orient_restrain:
+            try:  # I need to use try, because if a list was provided then, will raise an error, because the list doesn't have strip() method
+                if orient_restrain_vec.strip().lower() == "calculate":
+                    # first I need to create a temporal tpr file
+                    mdptmp = tempfile.NamedTemporaryFile(suffix=".mdp")
+                    tprtmp = tempfile.NamedTemporaryFile(suffix=".tpr")
+                    tools.run(
+                        f"export GMX_MAXBACKUP=-1; gmx grompp -f {mdptmp.name} -c {os.path.basename(input_path_dict['conf'])} -r {os.path.basename(input_path_dict['conf'])} -p {os.path.basename(input_path_dict['topol'])} -n {input_path_dict['ndx']} -o {tprtmp.name}")
 
-                # Here I am calculating all the vectors for each ligand
-                vectors = [tools.get_vec_COM(os.path.basename(input_path_dict['conf']), tprtmp.name,
-                                             input_path_dict['ndx'], f"{ligand}_GROUP1", f"{ligand}_GROUP2") for ligand in ligands]
-                # Get the average oriented vector, rounded with 3 decimals
-                orient_restrain_vec = tools.aovec(vectors, round=3)
-        except:
-            pass
+                    # Here I am calculating all the vectors for each ligand
+                    vectors = [tools.get_vec_COM(os.path.basename(input_path_dict['conf']), tprtmp.name,
+                                                input_path_dict['ndx'], f"{ligand}_GROUP1", f"{ligand}_GROUP2") for ligand in ligands]
+                    # Get the average oriented vector, rounded with 3 decimals
+                    orient_restrain_vec = tools.aovec(vectors, round=3)
+            except:
+                pass
         # Generating the mdp using the templates module, here we are constructing the pulling.
         pull_coord1_init_pulling = pull_distance
         if refine_init_pull:
@@ -493,6 +498,7 @@ def main(input_path_dict,
                 # Options for the cylinder and orientation restraints
                 flat_bottom_init=flat_bottom_init,
                 flat_bottom_k=flat_bottom_k,
+                orient_restrain=orient_restrain,
                 orient_restrain_init=orient_restrain_init,
                 orient_restrain_k=orient_restrain_k,
                 orient_restrain_vec=orient_restrain_vec,
@@ -526,6 +532,7 @@ def main(input_path_dict,
                 # Options for the cylinder and orientation restraints
                 flat_bottom_init=flat_bottom_init,
                 flat_bottom_k=flat_bottom_k,
+                orient_restrain=orient_restrain,
                 orient_restrain_init=orient_restrain_init,
                 orient_restrain_k=orient_restrain_k,
                 orient_restrain_vec=orient_restrain_vec,
@@ -551,6 +558,7 @@ def main(input_path_dict,
             # Options for the cylinder and orientation restraints
             flat_bottom_init=flat_bottom_init,
             flat_bottom_k=flat_bottom_k,
+            orient_restrain=orient_restrain,
             orient_restrain_init=orient_restrain_init,
             orient_restrain_k=orient_restrain_k,
             orient_restrain_vec=orient_restrain_vec,
@@ -783,6 +791,7 @@ def main(input_path_dict,
                     # Options for the cylinder and orientation restraints
                     flat_bottom_init=flat_bottom_init,
                     flat_bottom_k=flat_bottom_k,
+                    orient_restrain=orient_restrain,
                     orient_restrain_init=orient_restrain_init,
                     orient_restrain_k=orient_restrain_k,
                     orient_restrain_vec=orient_restrain_vec,
@@ -817,6 +826,7 @@ def main(input_path_dict,
                     # Options for the cylinder and orientation restraints
                     flat_bottom_init=flat_bottom_init,
                     flat_bottom_k=flat_bottom_k,
+                    orient_restrain=orient_restrain,
                     orient_restrain_init=orient_restrain_init,
                     orient_restrain_k=orient_restrain_k,
                     orient_restrain_vec=orient_restrain_vec,
@@ -904,6 +914,7 @@ def main(input_path_dict,
                     # Options for the cylinder and orientation restraints
                     flat_bottom_init=flat_bottom_init,
                     flat_bottom_k=flat_bottom_k,
+                    orient_restrain=orient_restrain,
                     orient_restrain_init=orient_restrain_init,
                     orient_restrain_k=orient_restrain_k,
                     orient_restrain_vec=orient_restrain_vec,
@@ -982,6 +993,7 @@ def main(input_path_dict,
                         'ligands':ligands,
                         'flat_bottom_init':flat_bottom_init,
                         'flat_bottom_k':flat_bottom_k,
+                        'orient_restrain':orient_restrain,
                         'orient_restrain_init':orient_restrain_init,
                         'orient_restrain_k':orient_restrain_k,
                         'orient_restrain_vec':orient_restrain_vec,
@@ -1078,6 +1090,7 @@ def main(input_path_dict,
                     # Options for the cylinder and orientation restraints
                     flat_bottom_init=flat_bottom_init,
                     flat_bottom_k=flat_bottom_k,
+                    orient_restrain=orient_restrain,
                     orient_restrain_init=orient_restrain_init,
                     orient_restrain_k=orient_restrain_k,
                     orient_restrain_vec=orient_restrain_vec,
@@ -1114,6 +1127,7 @@ def main(input_path_dict,
                     # Options for the cylinder and orientation restraints
                     flat_bottom_init=flat_bottom_init,
                     flat_bottom_k=flat_bottom_k,
+                    orient_restrain=orient_restrain,
                     orient_restrain_init=orient_restrain_init,
                     orient_restrain_k=orient_restrain_k,
                     orient_restrain_vec=orient_restrain_vec,

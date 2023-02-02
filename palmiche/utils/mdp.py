@@ -177,7 +177,7 @@ class MDP:
             steps_elapsed = int(nsteps /  self.user_keywords['xtc_numb_frame'])
 
             # Deffine nstlog, in case that there are not to many steps (small simulations usually for testing) set to nstcalcenergy
-            nstlog = min([int(nsteps / 2000), steps_elapsed]) # Here we get at least 2000 points. 
+            nstlog = min([int(nsteps / 2000), steps_elapsed]) # Here we get at least 2000 points.
             if nstlog <= self.default_keywords[self.type]['nstcalcenergy']:
                 nstlog = self.default_keywords[self.type]['nstcalcenergy']
 
@@ -188,7 +188,7 @@ class MDP:
 
         self.keywords = {}
         self.keywords['General'] = copy.deepcopy(self.default_keywords[self.type])
-        
+
         for key in self.user_keywords:
             # Do not take into account these two keys that are not mdp valid options
             if key not in  ['time', 'xtc_numb_frame']:
@@ -197,10 +197,10 @@ class MDP:
                 self.keywords['General'][key] = self.user_keywords[key]
                 if key not in self.default_keywords:
                     print(f'Added keyword: {key} = {self.user_keywords[key]}')
-        
 
 
-    def pull(self, dist2pull, ligands2pull, flat_bottom_init = 0.4, flat_bottom_k = 500, orient_restrain_init = 45, orient_restrain_k = 8274.41, orient_restrain_vec = (0,0,-1), **pullkeywords):
+
+    def pull(self, dist2pull, ligands2pull, flat_bottom_init = 0.4, flat_bottom_k = 500, orient_restrain_init = 45, orient_restrain = True, orient_restrain_k = 8274.41, orient_restrain_vec = (0,0,-1), **pullkeywords):
         """
         This will genrate the pull section with cylinder flat bottom restrain and orientation restrain
         orient_restrain_init = 0.349 # 20 degrees 20/180*3.141
@@ -222,8 +222,13 @@ class MDP:
         None.
 
         """
-        ncoords = 3*len(ligands2pull)
-        ngroups = 4*len(ligands2pull)
+        if orient_restrain:
+            ncoords = 3*len(ligands2pull)
+            ngroups = 4*len(ligands2pull)
+        else:
+            ncoords = 2*len(ligands2pull)
+            ngroups = 2*len(ligands2pull)
+
         pull_code = {
             # Pull code
             'pull':'yes',
@@ -306,37 +311,38 @@ class MDP:
         for key in pull2build_flat_bottom:
             self.keywords['Lateral Cylindrical Flat-bottomed Restraint'][key] = pull2build_flat_bottom[key]
 
-        # Here I will define the orientation restrains
-        orientation_section = {
-            'pull_group1_name':'LIA_GROUP1',
-            'pull_group2_name':'LIA_GROUP2',
-            'pull_coord1_type':'flat-bottom',
-            'pull_coord1_geometry':'angle-axis',
-            'pull_coord1_dim':'Y Y Y',
-            'pull_coord1_vec':' '.join([str(xi) for xi in orient_restrain_vec]),
-            'pull_coord1_groups':'1 2',
-            'pull_coord1_start':'no',
-            'pull_coord1_init':orient_restrain_init,
-            'pull_coord1_rate': 0.0,
-            'pull_coord1_k':orient_restrain_k,
-        }
+        if orient_restrain:
+            # Here I will define the orientation restrains
+            orientation_section = {
+                'pull_group1_name':'LIA_GROUP1',
+                'pull_group2_name':'LIA_GROUP2',
+                'pull_coord1_type':'flat-bottom',
+                'pull_coord1_geometry':'angle-axis',
+                'pull_coord1_dim':'Y Y Y',
+                'pull_coord1_vec':' '.join([str(xi) for xi in orient_restrain_vec]),
+                'pull_coord1_groups':'1 2',
+                'pull_coord1_start':'no',
+                'pull_coord1_init':orient_restrain_init,
+                'pull_coord1_rate': 0.0,
+                'pull_coord1_k':orient_restrain_k,
+            }
 
-        pull2build_orientation_restrain = {}
-        for (i,ligand) in enumerate(ligands2pull):
+            pull2build_orientation_restrain = {}
+            for (i,ligand) in enumerate(ligands2pull):
 
-            for key in orientation_section:
-                if key == 'pull_group1_name':
-                    pull2build_orientation_restrain[f'pull_group{2*i + 1 + 2*len(ligands2pull)}_name'] = f"{ligand}_GROUP1"
-                elif key == 'pull_group2_name':
-                    pull2build_orientation_restrain[f'pull_group{2*i + 2 + 2*len(ligands2pull)}_name'] = f"{ligand}_GROUP2"
-                elif key == 'pull_coord1_groups':
-                    pull2build_orientation_restrain[f'pull_coord{i + 1 + 2*len(ligands2pull)}_groups'] = f"{2*i + 1 + 2*len(ligands2pull)} {2*i + 2 + 2*len(ligands2pull)}"
-                else:
-                    pull2build_orientation_restrain[key.replace('coord1', f'coord{i + 1 + 2*len(ligands2pull)}')] = orientation_section[key]
+                for key in orientation_section:
+                    if key == 'pull_group1_name':
+                        pull2build_orientation_restrain[f'pull_group{2*i + 1 + 2*len(ligands2pull)}_name'] = f"{ligand}_GROUP1"
+                    elif key == 'pull_group2_name':
+                        pull2build_orientation_restrain[f'pull_group{2*i + 2 + 2*len(ligands2pull)}_name'] = f"{ligand}_GROUP2"
+                    elif key == 'pull_coord1_groups':
+                        pull2build_orientation_restrain[f'pull_coord{i + 1 + 2*len(ligands2pull)}_groups'] = f"{2*i + 1 + 2*len(ligands2pull)} {2*i + 2 + 2*len(ligands2pull)}"
+                    else:
+                        pull2build_orientation_restrain[key.replace('coord1', f'coord{i + 1 + 2*len(ligands2pull)}')] = orientation_section[key]
 
-        self.keywords['Orientation Restraint'] = dict()
-        for key in pull2build_orientation_restrain:
-            self.keywords['Orientation Restraint'][key] = pull2build_orientation_restrain[key]
+            self.keywords['Orientation Restraint'] = dict()
+            for key in pull2build_orientation_restrain:
+                self.keywords['Orientation Restraint'][key] = pull2build_orientation_restrain[key]
 
 
     def annealing1(self, NumbGroups, temp, heat_fraction = 0.25, nstenergy_same_as_nstcalcenergy = False):
@@ -461,7 +467,7 @@ class MDP:
         # T3             _____
         #                |
         # T2        ____|
-        #          |       
+        #          |
         # T1  ____|
 
         This is used as input of PandeWeights method
@@ -510,7 +516,7 @@ class MDP:
         nsteps = int(annealing_time[-1]/ dt)
         steps_elapsed = int(nsteps /  self.user_keywords['xtc_numb_frame'])
 
-        nstlog = min([int(nsteps / 2000), steps_elapsed]) # Here we get at least 2000 points. 
+        nstlog = min([int(nsteps / 2000), steps_elapsed]) # Here we get at least 2000 points.
         if nstlog <= self.keywords['General']['nstcalcenergy']: # In case that the output frequancy is higher than the calculation of the energy.
             nstlog = self.keywords['General']['nstcalcenergy']
 
@@ -520,7 +526,7 @@ class MDP:
         self.keywords['General']['nstenergy'] = 10 * self.keywords['General']['nstcalcenergy']
         self.keywords['General']['nstlog'] = nstlog
         self.keywords['General']['nstxout_compressed'] = steps_elapsed
-        
+
         for key in self.user_keywords:
             # Do not take into account these two keys that are not mdp valid options
             if key not in  ['time', 'xtc_numb_frame']:
@@ -529,10 +535,10 @@ class MDP:
                 self.keywords['General'][key] = self.user_keywords[key]
 
 
-        # here we 
+        # here we
         annealing_time_str = ' '.join([str(t) for t in annealing_time])
         annealing['annealing_time'] = ' '.join([annealing_time_str for _ in range(NumbOfGroups)])
-       
+
         annealing_temp = np.repeat(temp,2)
         annealing_temp_str = ' '.join([str(t) for t in annealing_temp])
         annealing['annealing_temp'] = ' '.join([annealing_temp_str for _ in range(NumbOfGroups)])
@@ -553,11 +559,11 @@ class MDP:
         temperature_lambdas = (temp_list - T_MIN) / (T_MAX - T_MIN)
 
         # Change the integration method
-        self.keywords['General']['integrator'] = 'md-vv'        
+        self.keywords['General']['integrator'] = 'md-vv'
         # # Increase the frequency of the energy calculation and energy output
         # self.keywords['General']['nstcalcenergy'] = int(self.keywords['General']['nstcalcenergy'] / 2)
         # self.keywords['General']['nstenergy'] = 2 * self.keywords['General']['nstcalcenergy']
-               
+
         # Control  the frequency of nstdhl output.
         nstdhdl = self.keywords['General']['nstcalcenergy']
         if 'Pull Code' in self.keywords:
