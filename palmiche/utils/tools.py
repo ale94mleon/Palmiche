@@ -430,6 +430,7 @@ def launch_wait_check_repeat(partition, jobpaths, logfile, lisfile, jobsh_name, 
         'gpu': 2,
         'gpu:test': 0.02,
         'gpu-hub':2,
+        'uds-hub':2,
             }
     # partition = 'deflt'
     # jobs2launch = [full_path_jobsh]
@@ -454,6 +455,8 @@ def launch_wait_check_repeat(partition, jobpaths, logfile, lisfile, jobsh_name, 
                 daysdiff = check.daysdiff()
             # Check if the estimated time is larger than the reservation time in the corresponded partition.
             if daysdiff:
+                if partition not in maximum_days:
+                    maximum_days[partition] = 2
                 if daysdiff > maximum_days[partition]:
                     # Get how many time the simulation must be relaunch
                     repeat = round((daysdiff / maximum_days[partition]) - 1)
