@@ -227,6 +227,7 @@ def main(input_path_dict,
         refine_init_pull = False,
         annealing = True,
         pull_coord_vec = [0.0, 0.0, -1.0],
+        reverse = False, # If True, it will use the negative pull_coord1_rate, Will go in the reverse direction with the negative of the reaction coordinates.
         flat_bottom_init=0.4,  # This is the radium
         flat_bottom_k=500, # This leads to sigma = 0.07942668639322366, this give us nice results, but we could test with 1000 that lead around 0.05 sigma
         orient_restrain = True,
@@ -606,6 +607,9 @@ def main(input_path_dict,
             define = f"-DPOSRES -DPOSRES_FC_BB=1000.0 -DPOSRES_FC_SC=100.0 -DPOSRES_FC_LIPID=1000.0 -DDIHRES -DDIHRES_FC=1000.0 -DPOSRES_LIG=0.0",
             time = simulation_time['pulling'],
             xtc_numb_frame = number_frame['pulling'])
+        pull_coord1_rate = pull_distance / simulation_time['pulling']
+        if reverse:
+            pull_coord1_rate = -pull_coord1_rate
         MDP_pulling.pull(
             pull_distance,
             ligands,
@@ -622,6 +626,7 @@ def main(input_path_dict,
             pull_coord1_k=pull_force_constants[0],
             pull_coord1_vec=" ".join([str(xi) for xi in pull_coord_vec]),
             pull_coord1_init=pull_coord1_init_pulling,
+            pull_coord1_rate = pull_coord1_rate,
         )
         MDP_pulling.write(os.path.join(output_path, 'pull.mdp'))
 
