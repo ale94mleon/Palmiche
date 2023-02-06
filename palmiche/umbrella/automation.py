@@ -79,6 +79,7 @@ def setup_production(
     dt,
     windows,
     pull_coord_vec,
+    reverse,
     annealing,
     tc_grps,
     temperature,
@@ -112,6 +113,8 @@ def setup_production(
                 tools.mv(os.path.join('split_xtc',conf), ID_dir_abspath_member)
                 [tools.cp(new_path_dict[key], ID_dir_abspath_member, r=True) for key in new_path_dict]
                 #   Create mdp, equilibration
+                pull_coord1_init = windows[window_ID]['dist']
+                if reverse: pull_coord1_init = -pull_coord1_init
                 MDP_equilibration = mdp.MDP(
                     **mdp_options,
                     define=f"-DPOSRES -DPOSRES_FC_BB=100.0 -DPOSRES_FC_SC=10.0 -DPOSRES_FC_LIPID=100.0 -DDIHRES -DDIHRES_FC=100.0 -DPOSRES_LIG=0.0",
@@ -132,7 +135,7 @@ def setup_production(
                     pull_nstfout = int(simulation_time['equilibration'] / (dt * number_frame['equilibration'])), # Reduce the output frequency of nstfout. It is not relevant. The frequency was set equal to the nstxout_compressed
                     pull_coord1_k=windows[window_ID]['force_constant'],
                     pull_coord1_vec=" ".join([str(xi) for xi in pull_coord_vec]),
-                    pull_coord1_init=windows[window_ID]['dist'],
+                    pull_coord1_init=pull_coord1_init,
                     pull_coord1_rate= 0.0,)
 
                 # Adding the section for the annealing if required.
@@ -165,7 +168,7 @@ def setup_production(
                     # General options for the actual pulling
                     pull_coord1_k=windows[window_ID]['force_constant'],
                     pull_coord1_vec=" ".join([str(xi) for xi in pull_coord_vec]),
-                    pull_coord1_init=windows[window_ID]['dist'],
+                    pull_coord1_init=pull_coord1_init,
                     pull_coord1_rate= 0.0,)
                 MDP_production.simulated_tempering(
                     temp_list = simulated_tempering_temperatures, # The same used for the anealing for the prediction of the inital weights
@@ -608,8 +611,7 @@ def main(input_path_dict,
             time = simulation_time['pulling'],
             xtc_numb_frame = number_frame['pulling'])
         pull_coord1_rate = pull_distance / simulation_time['pulling']
-        if reverse:
-            pull_coord1_rate = -pull_coord1_rate
+        if reverse: pull_coord1_rate = -pull_coord1_rate
         MDP_pulling.pull(
             pull_distance,
             ligands,
@@ -837,6 +839,9 @@ def main(input_path_dict,
                 tools.mv(os.path.join('split_xtc',conf), ID_dir_abspath)
                 [tools.cp(new_path_dict[key], ID_dir_abspath, r=True) for key in new_path_dict]
 
+                pull_coord1_init = windows[window_ID]['dist']
+                if reverse: pull_coord1_init = -pull_coord1_init
+
                 MDP_equilibration = mdp.MDP(
                     **mdp_options,
                     define=f"-DPOSRES -DPOSRES_FC_BB=100.0 -DPOSRES_FC_SC=10.0 -DPOSRES_FC_LIPID=100.0 -DDIHRES -DDIHRES_FC=100.0 -DPOSRES_LIG=0.0",
@@ -857,7 +862,7 @@ def main(input_path_dict,
                     pull_nstfout = int(simulation_time['equilibration'] / (dt * number_frame['equilibration'])), # Reduce the output frequency of nstfout. It is not relevant. The frequency was set equal to the nstxout_compressed
                     pull_coord1_k=windows[window_ID]['force_constant'],
                     pull_coord1_vec=" ".join([str(xi) for xi in pull_coord_vec]),
-                    pull_coord1_init=windows[window_ID]['dist'],
+                    pull_coord1_init=pull_coord1_init,
                     pull_coord1_rate= 0.0,)
 
                 # Adding the section for the annealing if required.
@@ -892,7 +897,7 @@ def main(input_path_dict,
                     pull_nstfout = int(simulation_time['annealing_for_ST'] / (dt * number_frame['annealing_for_ST'])), # Reduce the output frequency of nstfout. It is not relevant. The frequency was set equal to the nstxout_compressed
                     pull_coord1_k=windows[window_ID]['force_constant'],
                     pull_coord1_vec=" ".join([str(xi) for xi in pull_coord_vec]),
-                    pull_coord1_init=windows[window_ID]['dist'],
+                    pull_coord1_init=pull_coord1_init,
                     pull_coord1_rate= 0.0,)
                 # Es importante saber que ecauciones se van a usar. el metodo de pandes con alpha no es del todo correcto dado que lo que se estimo directamente
                 # fue el valor de los coeficientes y no de beta F. Con mi ecuacion la formula cambia porque tendriamos que buscar el punto medio no los extremos,
@@ -960,6 +965,8 @@ def main(input_path_dict,
                     weight_GROMACS_format = True
                     )
                 # Create mdp, assigning initial weights for production and burning phase
+                pull_coord1_init = windows[window_ID]['dist']
+                if reverse: pull_coord1_init = -pull_coord1_init
                 MDP_production = mdp.MDP(
                     **mdp_options,
                     define=f"-DPOSRES -DPOSRES_FC_BB=0.0 -DPOSRES_FC_SC=0.0 -DPOSRES_FC_LIPID=0.0 -DDIHRES -DDIHRES_FC=0.0 -DPOSRES_LIG=0.0",
@@ -978,7 +985,7 @@ def main(input_path_dict,
                     # General options for the actual pulling
                     pull_coord1_k=windows[window_ID]['force_constant'],
                     pull_coord1_vec=" ".join([str(xi) for xi in pull_coord_vec]),
-                    pull_coord1_init=windows[window_ID]['dist'],
+                    pull_coord1_init=pull_coord1_init,
                     pull_coord1_rate= 0.0,)
                 MDP_production.simulated_tempering(
                     temp_list = simulated_tempering_temperatures, # The same used for the anealing for the prediction of the inital weights
@@ -1057,6 +1064,7 @@ def main(input_path_dict,
                         'dt':dt,
                         'windows':windows,
                         'pull_coord_vec':pull_coord_vec,
+                        'reverse':reverse,
                         'annealing':annealing,
                         'tc_grps':tc_grps,
                         'temperature':temperature,
@@ -1136,6 +1144,9 @@ def main(input_path_dict,
                 tools.mv(os.path.join('split_xtc',conf), ID_dir_abspath)
                 [tools.cp(new_path_dict[key], ID_dir_abspath, r=True) for key in new_path_dict]
 
+                pull_coord1_init = windows[window_ID]['dist']
+                if reverse: pull_coord1_init = -pull_coord1_init
+
                 MDP_equilibration = mdp.MDP(
                     **mdp_options,
                     define=f"-DPOSRES -DPOSRES_FC_BB=100.0 -DPOSRES_FC_SC=10.0 -DPOSRES_FC_LIPID=100.0 -DDIHRES -DDIHRES_FC=100.0 -DPOSRES_LIG=0.0",
@@ -1156,7 +1167,7 @@ def main(input_path_dict,
                     pull_nstfout = int(simulation_time['equilibration'] / (dt * number_frame['equilibration'])), # Reduce the output frequency of nstfout. It is not relevant. The frequency was set equal to the nstxout_compressed
                     pull_coord1_k=windows[window_ID]['force_constant'],
                     pull_coord1_vec=" ".join([str(xi) for xi in pull_coord_vec]),
-                    pull_coord1_init=windows[window_ID]['dist'],
+                    pull_coord1_init=pull_coord1_init,
                     pull_coord1_rate= 0.0,)
 
                 # Adding the section for the annealing if required.
@@ -1191,7 +1202,7 @@ def main(input_path_dict,
                     # General options for the actual pulling
                     pull_coord1_k=windows[window_ID]['force_constant'],
                     pull_coord1_vec=" ".join([str(xi) for xi in pull_coord_vec]),
-                    pull_coord1_init=windows[window_ID]['dist'],
+                    pull_coord1_init=pull_coord1_init,
                     pull_coord1_rate= 0.0,)
 
                 MDP_production.write(os.path.join(ID_dir_abspath, 'production.mdp'))
