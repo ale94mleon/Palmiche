@@ -1182,7 +1182,11 @@ def main(input_path_dict,
          # Printing the coordanates.
         number_windows = len(windows)
         # THis case I use 3 because I use 2 pull restrain peer coord. orientation and loss of channel entrance
-        number_coords = 3*len(ligands)
+        if orient_restrain:
+            number_coords = 3*len(ligands)
+        else:
+            number_coords = 2*len(ligands)
+        select_file_names = []
         select_file_names = []
         # THis assumes that the first coordinates are the one for the pulling and not the restrains coordinates.
         for i in range(len(ligands) + 1):

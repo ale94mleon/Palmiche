@@ -49,7 +49,7 @@ class dG_corrector:
 if __name__ == '__main__':
     import os, glob
     from palmiche.utils.tools import get_sigma
-    umbrellas = sorted(glob.glob('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q*'))
+    umbrellas = sorted(glob.glob('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q'))
     ki_experimental = 66E-9
     for umbrella in umbrellas:
         # try:
@@ -59,7 +59,7 @@ if __name__ == '__main__':
             cylinder_force_cte_restraint=500,
             orientation_theta_naught=np.pi/4,
             absolute_temperature=303.15,
-            PmfXvgPath = os.path.join(umbrella, '7e27/cis1_bh267_m_vacumm_Cell_682_SP_param/windows/bsResult_coord0_selected.xvg'),
+            PmfXvgPath = os.path.join(umbrella, '7e27/BH246/windows/bsResult_coord0_selected.xvg'),
             integrator='simpson',
         )
         dg_corrected, Ki_corrected = corrector()
