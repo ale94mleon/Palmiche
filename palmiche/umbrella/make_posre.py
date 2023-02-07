@@ -4,11 +4,11 @@
 from palmiche.utils import tools, pdb, gro
 import os
 
-                
-                    
+
+
 def union(list_of_list):
     """
-    
+
 
     Parameters
     ----------
@@ -24,19 +24,19 @@ def union(list_of_list):
 
     """
     to_return = list_of_list[0]
-    
+
     for item in list_of_list:
-        to_return = set(to_return) & set(item)  
+        to_return = set(to_return) & set(item)
     #    to_return = list(filter(lambda x: x in to_return, item))
     return sorted(to_return)
     #return sorted(list(set(to_return)))
 
 def ndx_rectification(index_file, config_path, grouplist):
     """
-    This function is for the case that you have more than one monomer fo the 
+    This function is for the case that you have more than one monomer fo the
     same protein. In this case each monomer should have the same residues (number)
-    This function looks for the common residues of the groups decleared in 
-    grouplist and then look for the index atom of these aminoacids 
+    This function looks for the common residues of the groups decleared in
+    grouplist and then look for the index atom of these aminoacids
     on each monomer. Then it will try to guess to which group belong the new
     index and finally export a dictionary that could be write to a GROMACS
     index file using the function the method write of the class NDX.
@@ -62,10 +62,10 @@ def ndx_rectification(index_file, config_path, grouplist):
     basename = os.path.basename(config_path)
     ext = basename.split('.')[-1]
     to_work = []
-    
+
     if ext == 'gro':
         atoms = gro.GRO(config_path).atoms
-        
+
         for group in grouplist:
             residues = []
             for old_index in old_index_dict[group]:
@@ -74,16 +74,16 @@ def ndx_rectification(index_file, config_path, grouplist):
 
         common_resi = union([i for i in to_work])
         print("These are the aa taken into account, use the following command to see them in Pymol:\n show sticks, resi "+"+".join([str(i) for i in common_resi]))
-        
-        
+
+
         test = atoms[0].resNumber
         tmp_index = []
         total_index = []
         for i, atom in enumerate(atoms):
             if atom.resNumber < test or i == len(atoms)-1:
-                    
+
                 total_index.append(tmp_index)
-                tmp_index = []                
+                tmp_index = []
             if atom.resNumber in common_resi:
                 tmp_index.append(i+1)
             test = atom.resNumber
@@ -95,17 +95,17 @@ def ndx_rectification(index_file, config_path, grouplist):
 
             for new_index in total_index:
                 tmp = len(set(old_index) & set(new_index))
-                
+
                 if tmp > intersection:
                     intersection = tmp
                     new_index_dict[group] = new_index
             print(f"The new index group of {group} has {intersection} atoms that also were in the old index group that had a total of {len(old_index)} atoms")
-        
+
         return new_index_dict
-    
+
     elif ext == 'pdb':
         atoms = pdb.PDB(config_path).atoms
-        
+
         for group in grouplist:
             residues = []
             for old_index in old_index_dict[group]:
@@ -114,16 +114,16 @@ def ndx_rectification(index_file, config_path, grouplist):
 
         common_resi = union([i for i in to_work])
         print("These are the aa taken into account, use the following command to see them in Pymol:\n show sticks, resi "+"+".join([str(i) for i in common_resi]))
-        
-        
+
+
         test = atoms[0].resSeq
         tmp_index = []
         total_index = []
         for i, atom in enumerate(atoms):
             if atom.resSeq < test or i == len(atoms)-1:
-                    
+
                 total_index.append(tmp_index)
-                tmp_index = []                
+                tmp_index = []
             if atom.resSeq in common_resi:
                 tmp_index.append(i+1)
             test = atom.resSeq
@@ -135,22 +135,22 @@ def ndx_rectification(index_file, config_path, grouplist):
 
             for new_index in total_index:
                 tmp = len(set(old_index) & set(new_index))
-                
+
                 if tmp > intersection:
                     intersection = tmp
                     new_index_dict[group] = new_index
             print(f"The new index group of {group} has {intersection} atoms that also where in the old index group that had a total of {len(old_index)} atoms")
-        
+
         return new_index_dict
-    
+
     else:
         return(f"The file {config_path} has not a gro or pdb extension")
 
-                  
+
 
 def flat_bottom_itp_maker(file_path, geometry = 8, r = 'FLAT_BOTOM_r', k = 'FLAT_BOTOM_k', output = 'flat_bottom_posre.itp', H_atoms = False, backup = True):
     """
-    
+
 
     Parameters
     ----------
@@ -168,7 +168,7 @@ def flat_bottom_itp_maker(file_path, geometry = 8, r = 'FLAT_BOTOM_r', k = 'FLAT
     H_atoms : TYPE (bool), optional
         DESCRIPTION. The default is False. Control the flag of the function
         tools.get_atom_index()
-    
+
     For the description of geometry, r and k, please consult the GROMACS manual:
         https://manual.gromacs.org/
     Returns
@@ -181,7 +181,7 @@ def flat_bottom_itp_maker(file_path, geometry = 8, r = 'FLAT_BOTOM_r', k = 'FLAT
     func_type = 2 #This is for flat bottom potential in GROMACS
     if backup: tools.backoff(output)
     atom_index = tools.get_atom_index(file_path, H_atoms=H_atoms)
-    
+
     basename = os.path.basename(file_path)
     ext = basename.split('.')[-1].lower()
     to_print = [f" {index:<15}{func_type:<15}{geometry:<15}{r:<15}{k:<15}\n" for index in atom_index]
@@ -197,7 +197,7 @@ def flat_bottom_itp_maker(file_path, geometry = 8, r = 'FLAT_BOTOM_r', k = 'FLAT
                     "#ifdef POSRES\n"\
                     f"#include \"{output}\"\n"\
                     "#endif\n")
-    
+
 def flat_bottom_config_posre(config_path,resNameList, H_atoms= False, backup = True):
     """
     !!!!!Tengo que mejorar esta funcion, creo que es mejor trabajr con el index file
@@ -211,7 +211,7 @@ def flat_bottom_config_posre(config_path,resNameList, H_atoms= False, backup = T
 
     Parameters
     ----------
-    config : TYPE path 
+    config : TYPE path
         DESCRIPTION. configuration file (pdb or gro)
     resNameList : TYPE list
         DESCRIPTION. List of Residues names for which the flatt
@@ -219,9 +219,9 @@ def flat_bottom_config_posre(config_path,resNameList, H_atoms= False, backup = T
         ['LIA', 'LIB', 'LIC', ...]
     H_atoms : TYPE bool
         DESCRIPTION. The default is False. Control the flag of the function
-            mol_selection_center(), 
+            mol_selection_center(),
 
-        
+
 
     Returns
     -------
@@ -247,8 +247,8 @@ def flat_bottom_config_posre(config_path,resNameList, H_atoms= False, backup = T
                         if atom.atomName[0] not in 'Hh':
                             atom.x = xc
                             atom.y = yc
-                            atom.z = zc                        
-                
+                            atom.z = zc
+
     elif ext == 'pdb':
         config_data = pdb.PDB(config_path)
         for resName in resNameList:
@@ -258,7 +258,7 @@ def flat_bottom_config_posre(config_path,resNameList, H_atoms= False, backup = T
                     if H_atoms:
                         atom.x = xc
                         atom.y = yc
-                        atom.z = zc                       
+                        atom.z = zc
                     else:
                         if atom.name[0] not in 'Hh':
                             atom.x = xc
@@ -267,7 +267,7 @@ def flat_bottom_config_posre(config_path,resNameList, H_atoms= False, backup = T
     else:
         return('The extension file is not pdb or gro')
     config_data.write(backup = backup)
-        
+
 
 
 if __name__ == '__main__':

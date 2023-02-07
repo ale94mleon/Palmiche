@@ -305,6 +305,7 @@ class PDB:
             Use only the Atom, in False, HEATATM could be used, by default True
         """
         if only_ATOM:
+            # TODO, check of this is right
             atoms = [atom for atom in self.atoms if atom.code == "ATOM"]
         else:
             atoms = self.atoms
