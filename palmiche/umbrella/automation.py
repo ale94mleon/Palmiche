@@ -248,6 +248,9 @@ def main(input_path_dict,
         # This variable also will have as many as different intervals are specified, in case only one, tha same applied for all the windows
         window_widths=[0.1],
         chains=['A', 'B', 'C', 'D', 'E'],
+        # The portein is always the first group and has as name SOLU, so it is fine to create a selection based only on the protein and
+        # should work for different ligands as well.
+        CLOSE_AA_NDX = None, # This is a GROMACS ndx file it must have as many group as chains and the group names must be LI{chain}_CLOSE_AA
         GROMACS_version="2021.4",
         cpu=12,
         COM_dist_cpu=12,
@@ -432,8 +435,8 @@ def main(input_path_dict,
         # And the rest are for the temperature coupling.
 
         # Creating the tmp files
-        tmpopt1 = tempfile.NamedTemporaryFile()
-        tmpopt2 = tempfile.NamedTemporaryFile()
+        tmpopt1 = tempfile.NamedTemporaryFile(suffix='.opt')
+        tmpopt2 = tempfile.NamedTemporaryFile(suffix='.opt')
         tmpndx1 = tempfile.NamedTemporaryFile(suffix=".ndx")
         tmpndx2 = tempfile.NamedTemporaryFile(suffix=".ndx")
         tmpndx3 = tempfile.NamedTemporaryFile(suffix=".ndx")
@@ -447,11 +450,16 @@ def main(input_path_dict,
         "SOLV" group Water_and_ions;
         "Backbone" group Backbone;
         """
+        if CLOSE_AA_NDX:
+            if len(tools.NDX(CLOSE_AA_NDX).data) != len(chains):
+                CLOSE_AA_NDX = None
+                print(f"CLOSE_AA_NDX have {len(CLOSE_AA_NDX)} index groups, but you have {len(chains)} chains. The index groups will be automatically genereated.")
+
         for ligand in ligands:
-            options += f"""
-            "{ligand}" resname {ligand};
-            "{ligand}_CLOSE_AA" group "Backbone" and same residue as within 0.4 of resname {ligand};
-            """
+            options += f"\"{ligand}\" resname {ligand};\n"
+            if not CLOSE_AA_NDX:
+                f"\"{ligand}_CLOSE_AA\" group \"Backbone\" and same residue as within 0.4 of resname {ligand};\n"
+
         # ==============================================================================
 
         with open(tmpopt1.name, 'w') as f:
@@ -466,18 +474,23 @@ def main(input_path_dict,
             f.write(data)
 
         # Rectification, to take the same aa in all the monomers
-        ndx_rect = make_posre.ndx_rectification(tmpndx2.name, input_path_dict['conf'], [
-                                                f"{ligand}_CLOSE_AA" for ligand in ligands])
+        if CLOSE_AA_NDX:
+            close_ndx = tools.NDX(CLOSE_AA_NDX).data
+            ndx_rect_dict = tools.NDX(tmpndx2.name).data
+            ndx_rect_dict.update(close_ndx)
+        else:
+            ndx_rect_dict = make_posre.ndx_rectification(tmpndx2.name, input_path_dict['conf'], [
+                                                    f"{ligand}_CLOSE_AA" for ligand in ligands])
 
         # Adding the corresponding index groups for the orientation restrain.
         if orient_restrain:
             for ligand in ligands:
-                ndx_rect[f"{ligand}_GROUP1"] = [ndx_rect[ligand][index - 1]
+                ndx_rect_dict[f"{ligand}_GROUP1"] = [ndx_rect_dict[ligand][index - 1]
                                                 for index in lig_vec_group1]
-                ndx_rect[f"{ligand}_GROUP2"] = [ndx_rect[ligand][index - 1]
+                ndx_rect_dict[f"{ligand}_GROUP2"] = [ndx_rect_dict[ligand][index - 1]
                                                 for index in lig_vec_group2]
         ndx_obj = tools.NDX(tmpndx3.name)
-        ndx_obj.data = ndx_rect
+        ndx_obj.data = ndx_rect_dict
         ndx_obj.write(out_name=tmpndx3.name,backup=False)
 
         # to rectify groups, just keep the atoms that belong to the group backbone
@@ -508,6 +521,7 @@ def main(input_path_dict,
         # Ordering the files, now all the path in new_path_dict are useful
         [tools.cp(input_path_dict[key], output_path, r=True) for key in input_path_dict if key!= 'conf']
         tools.cp(tmpndx4.name, os.path.join(output_path, out_index_name))
+
         # Changing the directory to
         os.chdir(output_path)
         # Creating the average oriented vector. This vector is used for the orientation restrain of the ligands. This is done is order to have
