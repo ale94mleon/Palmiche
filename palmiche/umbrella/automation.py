@@ -458,7 +458,7 @@ def main(input_path_dict,
         for ligand in ligands:
             options += f"\"{ligand}\" resname {ligand};\n"
             if not CLOSE_AA_NDX:
-                f"\"{ligand}_CLOSE_AA\" group \"Backbone\" and same residue as within 0.4 of resname {ligand};\n"
+                options += f"\"{ligand}_CLOSE_AA\" group \"Backbone\" and same residue as within 0.4 of resname {ligand};\n"
 
         # ==============================================================================
 
