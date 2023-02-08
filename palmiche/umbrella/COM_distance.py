@@ -28,8 +28,6 @@ def COM_dist_chunk_code(conf_file,grouplist,ndx,tpr,prefix):
     tools.run(f"export GMX_MAXBACKUP=-1; gmx distance -s {tpr} -f {conf_file} -n {ndx} -sf {opt_tmp.name} -oall {xvg_tmp.name} -xvg none")
     tmp_row += list(np.loadtxt(xvg_tmp.name)[1:])
 
-    opt_tmp.cleanup()
-    xvg_tmp.cleanup()
 
     Mean = stat.mean(tmp_row[1:])
     try:
