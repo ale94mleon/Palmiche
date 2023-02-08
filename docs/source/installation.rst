@@ -14,7 +14,7 @@ Create conda environment and install conda dependencies
 
 .. code-block:: bash
 
-    conda create -n palmiche
+    conda create -n palmiche python=3.9
     conda activate palmiche
 
 Then install the dependencies libraries:
@@ -31,4 +31,4 @@ pip install
 .. code-block:: bash
 
     # To get the version on development (only posable alternative for now)
-    pip install git+https://github.com/ale94mleon/palmiche.git@main
+    pip install -U git+https://github.com/ale94mleon/palmiche.git@main

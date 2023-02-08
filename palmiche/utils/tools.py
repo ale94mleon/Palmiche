@@ -17,8 +17,7 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
-import os, subprocess, shutil, datetime, tempfile, time, tqdm, pickle
-from sklearn import cluster
+import os, subprocess, shutil, datetime, tempfile, time, tqdm
 from collections import OrderedDict
 import numpy as np
 import pandas as pd
@@ -34,11 +33,10 @@ from rdkit.Chem import DataStructs, AllChem
 from rdkit.DataStructs import ExplicitBitVect
 from rdkit import Chem
 
-from kneed import KneeLocator
+
 from sklearn.cluster import KMeans
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from scipy.cluster.vq import vq
 from scipy.interpolate import interp1d
 from palmiche.utils import xvg
