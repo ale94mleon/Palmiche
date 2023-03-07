@@ -164,7 +164,29 @@ def RUS(data, ref_index_data = 0, NumbPoints = None, InterpolationKind = 'cubic'
 
     return RUS_values
 
+def sign_change_index(values: list) -> int:
+    """This function check wheter the sign of the values change.
+    For example, for the list [-3,-2,0,1,2], the return value will be 2.
+    On value "0" the sig change.
 
+    Parameters
+    ----------
+    values : list
+        Iterable of numerical values
+
+    Returns
+    -------
+    int
+        The index. In case that the sign does not change or values has less than 2 elements,
+        it will return None.
+    """
+    if len(values) <= 1:
+        return None
+    else:
+        for i in range(1, len(values)):
+            if values[i] * values[i-1] < 0:
+                return i
+    return None
 
 def zerolistmaker(n):
     return [0]*n

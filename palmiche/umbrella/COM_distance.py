@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from palmiche.utils import tools
+from palmiche.utils import tools, xvg
 import os, glob
 import pandas as pd
 import numpy as np
@@ -41,7 +41,8 @@ def COM_dist_chunk_code(conf_file,grouplist,ndx,tpr,prefix):
     return tmp_row
 
 
-def main(grouplist, cpu = 0, ndx = 'index.ndx', tpr = 'pull.tpr', xtc = 'pull.xtc', prefix = 'conf', out = 'summary_distances.dat', split_out_dir = '.'):
+def main(grouplist, cpu = 0, ndx = 'index.ndx', tpr = 'pull.tpr', xtc = 'pull.xtc', prefix = 'conf',
+        out = 'summary_distances.dat', check_sign_change_on_pullx = None, pullx_columns = None, split_out_dir = '.'):
     """
 
 
@@ -66,6 +67,14 @@ def main(grouplist, cpu = 0, ndx = 'index.ndx', tpr = 'pull.tpr', xtc = 'pull.xt
         DESCRIPTION. The default is 'pull.xtc'.
     prefix : TYPE, optional
         DESCRIPTION. The default is 'conf'.
+    check_sign_change_on_pullx : str (the path to the pullx file), optional
+        If provided, it will check wheter or not the sign of the pull change in order to take into account the correct conformations.
+        This assume that the first coordinate of the pullx was used for the pulling.
+        The default is None.
+    pullx_columns : str, optional
+        The columns to pick, if more than one, the average will be used, if nothing was provided, the columns with index 1 (the first columns in the pullx 
+        file is the time and has as index 0).
+        The default is None.
     out : TYPE, optional
         DESCRIPTION. The default is 'summary_distances.dat'.
 
@@ -81,8 +90,22 @@ def main(grouplist, cpu = 0, ndx = 'index.ndx', tpr = 'pull.tpr', xtc = 'pull.xt
         raise FileNotFoundError(f"\"{tpr}\" doesn't exist or is not accessible..")
     if not os.path.exists(xtc):
         raise FileNotFoundError(f"\"{xtc}\" doesn't exist or is not accessible..")
+    if check_sign_change_on_pullx:
+        if not os.path.exists(check_sign_change_on_pullx):
+            raise FileNotFoundError(f"\"{check_sign_change_on_pullx}\" doesn't exist or is not accessible..")
+        pullx = xvg.XVG(check_sign_change_on_pullx).data
+        if pullx_columns:
+            pullx_ave = np.average(pullx[:,pullx_columns], axis=1)
+        else:
+            pullx_ave = pullx_ave[:,1]
+        # Check if the sign change
+        sign_change_on = tools.sign_change_index(pullx_ave)
+
 
     print('Splitting the trajectory...')
+    cmd = f"export GMX_MAXBACKUP=-1; echo 'system' | gmx trjconv -s {tpr} -f {xtc} -o {os.path.join(split_out_dir, prefix)}.gro -sep"
+    if sign_change_on:
+        cmd += f" -b {int(pullx[sign_change_on,0])}"
     tools.run(f"export GMX_MAXBACKUP=-1; echo 'system' | gmx trjconv -s {tpr} -f {xtc} -o {os.path.join(split_out_dir, prefix)}.gro -sep")
     print('Done!')
     conf_files = sorted(glob.glob(f"{os.path.join(split_out_dir, prefix)}[0-9]*"), key=lambda x:int(os.path.basename(x).split(prefix)[-1].split('.')[0]))

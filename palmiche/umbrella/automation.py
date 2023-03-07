@@ -709,7 +709,10 @@ def main(input_path_dict,
         tools.makedirs("split_xtc")
         print('Calculating distances')
         COM_distance.main(grouplist, cpu=COM_dist_cpu, ndx=new_path_dict['ndx'], tpr=os.path.join(output_path,'pull.tpr'),
-                          xtc=os.path.join(output_path, 'pull.xtc'), prefix='conf', out='summary_distances.dat', split_out_dir='split_xtc')
+                        xtc=os.path.join(output_path, 'pull.xtc'), prefix='conf', out='summary_distances.dat',
+                        # Doing check of the distance "sign" and specifiying the columns
+                        check_sign_change_on_pullx = 'pull_pullx.xvg', pullx_columns = range(1,len(ligands)+1),
+                        split_out_dir='split_xtc')
         # ==============================================================================
         # The processing and the launch of the windows
 
