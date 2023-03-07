@@ -154,6 +154,9 @@ class JOB:
         elif self.hostname.startswith('rarp'):
             default_sbatch_keywords['partition'] = 'uds-hub'
             default_sbatch_keywords['cpus-per-task'] = 16
+            # Feature=Ryzen_3975WX Gres=gpu:A4000:4
+            # Feature=XEON_E5_2630v4 Gres=gpu:RTX1070:4
+            # Feature=XEON_E5_2630v4 Gres=gpu:RTX1070Ti:4
             default_sbatch_keywords['constraint'] = 'Ryzen_3975WX'
         else:
             default_sbatch_keywords['cpus-per-task'] = 12

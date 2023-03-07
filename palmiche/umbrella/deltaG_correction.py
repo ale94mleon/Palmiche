@@ -59,7 +59,7 @@ if __name__ == '__main__':
             cylinder_force_cte_restraint=500,
             orientation_theta_naught=np.pi/4,
             absolute_temperature=303.15,
-            PmfXvgPath = os.path.join(umbrella, '7e27/BH246/windows/bsResult_coord0_selected.xvg'),
+            PmfXvgPath = os.path.join(umbrella, '7e27/BH306 /windows/bsResult_coord0_selected.xvg'),
             integrator='simpson',
         )
         dg_corrected, Ki_corrected = corrector()
