@@ -107,7 +107,7 @@ sbatch_translation = {
     'wrap':'wrap',
 }
 class JOB:
-    def __init__(self, sbatch_keywords = None, GROMACS_version = 2021.5, mdrun_keywords = None, build_GROMACS_section = None, hostname = None) -> None:
+    def __init__(self, sbatch_keywords = None, GROMACS_version = 2021.5, mdrun_keywords = None, build_GROMACS_section = None, hostname = None, load_non_sapck_GROMACS_smaug = False) -> None:
         self.user_sbatch_keywords = sbatch_keywords
         self.user_mdrun_keywords = mdrun_keywords
         if hostname:
@@ -116,6 +116,7 @@ class JOB:
             self.hostname = socket.gethostname()
         self.GROMACS_version = GROMACS_version
         self.build_GROMACS_section = build_GROMACS_section
+        self.load_non_sapck_GROMACS_smaug = load_non_sapck_GROMACS_smaug
         self.default_times = {
             'deflt': '2-00:00:00',
             'long': '5-00:00:00',
@@ -218,11 +219,17 @@ class JOB:
                 )
             # Loading modules
             if self.hostname == 'smaug' or self.hostname.startswith('fang'):
-                job_str += (
-                        f"source /data/shared/opt/gromacs/{self.GROMACS_version}/bin/GMXRC\n"\
-                        f"PATH=$PATH:\"/data/shared/opt/gromacs/{self.GROMACS_version}/bin\"\n"\
-                        f"#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\n\n"
-                        )
+                if self.GROMACS_version == '2021.6_simTemp_setOccupState0':
+                    job_str += (
+                            f"source /data/shared/opt/gromacs/{self.GROMACS_version}/bin/GMXRC\n"\
+                            f"PATH=$PATH:\"/data/shared/opt/gromacs/{self.GROMACS_version}/bin\"\n"\
+                            f"#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\n\n"
+                            )
+                else:
+                    job_str += (
+                        "source /data/shared/spack-0.19.1/shared.bash\n"\
+                        f'module load gromacs/{self.GROMACS_version}\n\n'
+                    )
             # This could give some problems for testing GROMACS versions
             elif self.hostname.startswith('gwd'):
                 job_str += 'source /usr/users/cmb/shared/spack-0.17/shared.bash\n'\

@@ -799,6 +799,7 @@ def assembly(
     out_dir = 'Assamble',
     hostname = 'smaug',
     GROMACS_version = '2021.5',
+    increase_box_on_z = None,
 
     ):
 
@@ -857,6 +858,8 @@ def assembly(
 
         #!!Get the vector information in the step5_input.gro of CHARMM-GUI, this info is only in the gro file
         vector, angles = get_cryst1(receptor_dict[receptor]['step5_input_gro'])
+        if increase_box_on_z:
+            vector[2] += increase_box_on_z
         receptor_dict[receptor]['cryst1'] = {'vector':vector, 'angles':angles}
 
         #If the membrane is not already created (looking the path storged in

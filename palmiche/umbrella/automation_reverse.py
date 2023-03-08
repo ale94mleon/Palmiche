@@ -378,6 +378,8 @@ def main(input_path_dict,
     # See if the alpha was selected for ST and creating the strin for the jobsh
     if simulated_tempering_alpha:
        str_simulated_tempering_alpha = f"export SIMTEMP_OCCUP_STATE0={simulated_tempering_alpha}\n"
+       if GROMACS_version != '2021.6_simTemp_setOccupState0':
+           raise ValueError(f"simulated_tempering_alpha = {simulated_tempering_alpha} but GROMACS_version = {GROMACS_version}. Only GROMACS_version = 2021.6_simTemp_setOccupState0 is possible in this case")
     else:
         str_simulated_tempering_alpha = '\n'
     # Here I am see how many different intervals are in the windows
