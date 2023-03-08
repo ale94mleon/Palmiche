@@ -796,7 +796,7 @@ def assembly(
     ligand_codes:list[str] = None,
     ligand_ff_code = 'GAFF2', # OpenFF
     openff_code:str = 'openff_unconstrained-2.0.0.offxml',
-    out_dir = 'Assamble',
+    out_dir = 'Assembly',
     hostname = 'smaug',
     GROMACS_version = '2021.5',
     increase_box_on_z = None,
@@ -839,7 +839,8 @@ def assembly(
         for receptor in list(receptor_dict):
             if receptor not in receptor_codes:
                 del receptor_dict[receptor]
-                del docking_dict[receptor]
+                if receptor in docking_dict:
+                    del docking_dict[receptor]
     if ligand_codes:
         for receptor in list(docking_dict):
             for ligand in list(docking_dict[receptor]):
@@ -859,7 +860,9 @@ def assembly(
         #!!Get the vector information in the step5_input.gro of CHARMM-GUI, this info is only in the gro file
         vector, angles = get_cryst1(receptor_dict[receptor]['step5_input_gro'])
         if increase_box_on_z:
+            vector = list(vector)
             vector[2] += increase_box_on_z
+            
         receptor_dict[receptor]['cryst1'] = {'vector':vector, 'angles':angles}
 
         #If the membrane is not already created (looking the path storged in
