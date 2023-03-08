@@ -824,6 +824,12 @@ def assembly(
     water_ff = "tip3p"
     propka = 'propka3'
 
+    protein_ff_path = os.path.abspath('amber99sb-star-ildn.ff')
+    lipid_ff_path = os.path.abspath('Slipids_2020.ff')
+    mdp_path = os.path.abspath('CHARMM-GUI')
+    tools.get_palmiche_data(file="GROMACS.ff/amber99sb-star-ildn.ff.tar.gz", out_dir='.')
+    tools.get_palmiche_data(file="GROMACS.ff/Slipids_2020.ff.tar.gz", out_dir='.')
+    tools.get_palmiche_data(file="MDP/CHARMM-GUI.tar.gz", out_dir='.')
 
     receptor_dict, ligand_dict, docking_dict = get_path_dict(
         ligands_path = ligands_path_root,
@@ -878,12 +884,9 @@ def assembly(
         #avoid this second evaluation of pka2gmx
         #Only if the protein_update.pdb doesn't exist
         if not os.path.isfile(receptor_dict[receptor]["update"]) or not os.path.isfile(receptor_dict[receptor]["topol"]) or not os.path.isdir(receptor_dict[receptor]["toppar"]):
-            tools.get_palmiche_data(file="GROMACS.ff/amber99sb-star-ildn.ff.tar.gz", out_dir='.')
-            tools.get_palmiche_data(file="GROMACS.ff/Slipids_2020.ff.tar.gz", out_dir='.')
-            tools.get_palmiche_data(file="MDP/CHARMM-GUI", out_dir='.')
             pka2gmx(receptor_dict[receptor]["protein"],
                     output = f"{receptor}_update.pdb",
-                    protein_forcefield = 'amber99sb-star-ildn.ff',
+                    protein_forcefield = protein_ff_path,
                     water_forcefield = water_ff,
                     ph = 7.0,
                     pKa = propka)
@@ -947,9 +950,9 @@ def assembly(
             # there is not need to specify it again: out_dir/receptor/ligand
             ASSEMBLE_PDB.write(os.path.join(assemble_path, "ASSEMBLY.pdb"))
 
-            [tools.cp(item, assemble_path ,r = True) for item in [receptor_dict[receptor]["toppar"], receptor_dict[receptor]["topol"], os.path.join('CHARMM-GUI', '*.mdp')]]
+            [tools.cp(item, assemble_path ,r = True) for item in [receptor_dict[receptor]["toppar"], receptor_dict[receptor]["topol"], protein_ff_path, lipid_ff_path, os.path.join(mdp_path, '*.mdp')]]
 
-            tools.cp(os.path.join('Slipids_2020.ff', "Slipids_2020_itp_files", "POPC.itp"), os.path.join(assemble_path, 'toppar'))
+            tools.cp(os.path.join(lipid_ff_path, "Slipids_2020_itp_files", "POPC.itp"), os.path.join(assemble_path, 'toppar'))
 
             #Now solvate the system
             gmxsolvate(assemble_path, "ASSEMBLY.pdb", "topol.top", receptor_dict[receptor]["cryst1"]["vector"], editconf_angles = receptor_dict[receptor]["cryst1"]["angles"], editconf_bt = "tric", solvate_cs = "spc216", out_file = "ASSEMBLY.pdb")
