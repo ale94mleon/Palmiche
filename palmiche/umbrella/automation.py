@@ -364,6 +364,17 @@ def main(input_path_dict,
     # This is important, it will always sorted pull_midles_points, and pull_force_constants and window_widths it will be map respect to the sorted pull_middle_points
     # I have to consider the case when non pull_middle_points are set. In this case I also have to chane some other option when the windows are building.
     pull_middle_points = sorted(pull_middle_points)
+
+    # Check that pull_coord_vec is correect
+    if pull_coord_vec[0]!=0 or pull_coord_vec[1] !=0:
+        raise ValueError(f"pull_coord_vec must be a vector (0,0,something) not {pull_coord_vec}")
+    # Create grouplist in the correct order
+    grouplist = [[ligand, ligand+"_CLOSE_AA"] for ligand in ligands]
+    # Swap the order if needed to keep the correct sign on the distnce
+    if (reverse and pull_coord_vec[-1] > 0) or (not reverse and pull_coord_vec[-1] < 0):
+        for group in grouplist:
+            group[0], group[1] = group[1], group[0]
+    
     print(
         f"The following window intervals will be constructed:\nmin---{'---'.join([str(point) for point in pull_middle_points])}---max\n")
     if len(pull_force_constants) == 1:
@@ -550,14 +561,14 @@ def main(input_path_dict,
             print('Building the refinment for the initial configuaration of the pulling')
             mdp_pull_tmp = tempfile.NamedTemporaryFile(suffix=".mdp")
             tpr_pull_tmp = tempfile.NamedTemporaryFile(suffix=".tpr")
-            opt_pull_tmp = tempfile.NamedTemporaryFile(suffix='.opt')
-            xvg_pull_tmp = tempfile.NamedTemporaryFile(suffix='_dist.xvg')
-            with open(opt_pull_tmp.name, 'w') as f:
-                for (i, ligand) in enumerate(ligands):
-                    f.write(f"\"{i}\" com of group {ligand} plus com of group {ligand}_CLOSE_AA;\n")
-            tools.run(f"export GMX_MAXBACKUP=-1; gmx grompp -f {mdp_pull_tmp.name} -c {input_path_dict['conf']} -r {input_path_dict['conf']} -p {input_path_dict['topol']} -n {out_index_name} -o {tpr_pull_tmp.name}\n"\
-            f"gmx distance -s {tpr_pull_tmp.name} -f {input_path_dict['conf']} -n {out_index_name} -sf {opt_pull_tmp.name} -oall {xvg_pull_tmp.name} -xvg none")
-            pull_coord1_init_pulling = np.mean(np.loadtxt(xvg_pull_tmp.name)[1:])
+            tools.run(f"export GMX_MAXBACKUP=-1; gmx grompp -f {mdp_pull_tmp.name} -c {input_path_dict['conf']} -r {input_path_dict['conf']} -p {input_path_dict['topol']} -n {out_index_name} -o {tpr_pull_tmp.name}")
+            pull_coord1_init_pulling = COM_distance.COM_dist_chunk_code(
+                conf_file = input_path_dict['conf'],
+                grouplist = grouplist,
+                ndx =out_index_name,
+                tpr = tpr_pull_tmp.name,
+                prefix = None,
+                projected_on = 'z')[1]
 
             # Creating the pull_minimization mdp
             MDP_pulling_minimization = mdp.MDP(
@@ -704,14 +715,14 @@ def main(input_path_dict,
 
         # Changing dir to windows and measurement of distances
         os.chdir(window_path)
-        grouplist = [[ligand, ligand+"_CLOSE_AA"] for ligand in ligands]
+
         # This will output a file called mean.dat, that has the format needed for pulling_processing.windows_creator. The distance is the average distance of the grouplist
         tools.makedirs("split_xtc")
         print('Calculating distances')
         COM_distance.main(grouplist, cpu=COM_dist_cpu, ndx=new_path_dict['ndx'], tpr=os.path.join(output_path,'pull.tpr'),
                         xtc=os.path.join(output_path, 'pull.xtc'), prefix='conf', out='summary_distances.dat',
                         # Doing check of the distance "sign" and specifiying the columns
-                        check_sign_change_on_pullx = 'pull_pullx.xvg', pullx_columns = range(1,len(ligands)+1),
+                        projected_on = 'z',
                         split_out_dir='split_xtc')
         # ==============================================================================
         # The processing and the launch of the windows
