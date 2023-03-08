@@ -40,7 +40,9 @@ from sklearn.preprocessing import MinMaxScaler
 from scipy.cluster.vq import vq
 from scipy.interpolate import interp1d
 from palmiche.utils import xvg
+from palmiche.home import home
 from typing import Union
+import tarfile
 
 PathLike = Union[os.PathLike, str, bytes]
 
@@ -55,6 +57,24 @@ class CTE:
     """
     Kb = 8.314462618E-3 #kJ/(mol⋅K) (kNA)
     R = 8.314462618E-3 #kJ/(mol⋅K)
+
+def get_palmiche_data(file:PathLike, out_dir:PathLike = '.') -> None:
+    """Get data from the data directory of Palmiche
+
+
+    Parameters
+    ----------
+    file : PathLike
+        this is the path relative to the data directory of Palmiche. For example,
+        To get the amber99sb-star-ildn force field, you must provided
+        GROMACS.ff/amber99sb-star-ildn.ff.tar.gz
+    out_dir : PathLike, optional
+        Where the file will be decompress, by default '.'
+    """
+    fname = home(file)
+    tar = tarfile.open(fname, "r:gz")
+    tar.extractall(out_dir)
+    tar.close()
 
 def RSS(data, AlignPoint, ref_index_data = 0, NumbPoints = None, InterpolationKind = 'cubic'):
     """This function will return a list of Residues Squared Sums.

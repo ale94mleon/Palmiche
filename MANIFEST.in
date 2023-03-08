@@ -1,4 +1,4 @@
 include LICENSE README.rst
 include palmiche/data/MDP/*.tar.gz
 include palmiche/data/GROMACS.ff/*.tar.gz
-include palmiche/data/samples/*
+include palmiche/data/samples/*.tar.gz
