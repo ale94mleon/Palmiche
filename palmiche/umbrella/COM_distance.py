@@ -143,13 +143,11 @@ if __name__=='__main__':
         # grouplist.append([f"LI{char}", f"LI{char}_CLOSE_AA"])
         grouplist.append([f"LI{char}_CLOSE_AA", f"LI{char}"])
 
-    path ="/home/ale/mnt/smaug-data/simulation/MD/NEW/docking_min_equi/permeation/umbrella/runs/7e27/lactate/n_pbc"
+    path ="/home/ale/mnt/kl-scratch/MD/NEW/docking_min_equi/permeation/umbrella/runs/7e27/lactate/p"
     tools.makedirs('split_xtc')
     main(grouplist, cpu=6, ndx= os.path.join(path, 'index.ndx'), tpr=os.path.join(path,'pull.tpr'),
                     xtc=os.path.join(path, 'pull.xtc'),
                     projected_on = 'z',
                     prefix = 'conf',
                     out = 'summary_distancesz.dat',
-                    check_sign_change_on_pullx = None,
-                    pullx_columns = None,
                     split_out_dir = 'split_xtc')

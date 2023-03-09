@@ -391,9 +391,9 @@ def main(input_path_dict,
     if pull_coord_vec[0]!=0 or pull_coord_vec[1] !=0:
         raise ValueError(f"pull_coord_vec must be a vector (0,0,something) not {pull_coord_vec}")
     # Create grouplist in the correct order
-    grouplist = [[ligand, ligand+"_CLOSE_AA"] for ligand in ligands]
+    grouplist = [[ligand+"_CLOSE_AA",ligand] for ligand in ligands]
     # Swap the order if needed to keep the correct sign on the distnce
-    if  pull_coord_vec[-1] < 0:
+    if pull_coord_vec[-1] < 0:
         for group in grouplist:
             group[0], group[1] = group[1], group[0]
 

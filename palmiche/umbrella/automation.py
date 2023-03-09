@@ -375,7 +375,7 @@ def main(input_path_dict,
     # Generating the ligands name whit the chain information
     ligands = [f"LI{chain}" for chain in chains]
     # Create grouplist in the correct order
-    grouplist = [[ligand, ligand+"_CLOSE_AA"] for ligand in ligands]
+    grouplist = [[ligand+"_CLOSE_AA",ligand] for ligand in ligands]
     # Swap the order if needed to keep the correct sign on the distnce
     if (reverse and pull_coord_vec[-1] > 0) or (not reverse and pull_coord_vec[-1] < 0):
         for group in grouplist:
