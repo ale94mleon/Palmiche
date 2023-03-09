@@ -382,7 +382,7 @@ def main(input_path_dict,
             group[0], group[1] = group[1], group[0]
     
     print(
-        f"The following window intervals will be constructed:\nmin---{'---'.join([str(point) for point in pull_middle_points])}---max\n")
+        f"The following window intervals will be constructed:\nmin---{'---'.join([f'[{point}]' for point in pull_middle_points])}---max\n")
     if len(pull_force_constants) == 1:
         pull_force_constants = (
             len(pull_middle_points) + 2) * pull_force_constants
