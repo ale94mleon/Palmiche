@@ -370,6 +370,9 @@ def main(input_path_dict,
     # Check that pull_coord_vec is correect
     if pull_coord_vec[0]!=0 or pull_coord_vec[1] !=0:
         raise ValueError(f"pull_coord_vec must be a vector (0,0,something) not {pull_coord_vec}")
+    
+    # Generating the ligands name whit the chain information
+    ligands = [f"LI{chain}" for chain in chains]
     # Create grouplist in the correct order
     grouplist = [[ligand, ligand+"_CLOSE_AA"] for ligand in ligands]
     # Swap the order if needed to keep the correct sign on the distnce
@@ -418,8 +421,6 @@ def main(input_path_dict,
     start_datetime = datetime.datetime.now()
     output_path = os.path.abspath(output_path)
 
-    # Generating the ligands name whit the chain information
-    ligands = [f"LI{chain}" for chain in chains]
     # Generating the tc_grps names
     tc_grps = ['SOLU', 'MEMB', 'SOLV'] + ligands
     # The general options for the mdp
