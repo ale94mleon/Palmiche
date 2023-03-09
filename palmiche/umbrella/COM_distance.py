@@ -143,7 +143,7 @@ if __name__=='__main__':
         # grouplist.append([f"LI{char}", f"LI{char}_CLOSE_AA"])
         grouplist.append([f"LI{char}_CLOSE_AA", f"LI{char}"])
 
-    path ="/home/ale/mnt/kl-scratch/MD/NEW/docking_min_equi/permeation/umbrella/runs/7e27/lactate/p"
+    path ="/home/ale/mnt/kl-scratch/MD/NEW/docking_min_equi/permeation/umbrella/runs/7e27/lactate/n"
     tools.makedirs('split_xtc')
     main(grouplist, cpu=6, ndx= os.path.join(path, 'index.ndx'), tpr=os.path.join(path,'pull.tpr'),
                     xtc=os.path.join(path, 'pull.xtc'),

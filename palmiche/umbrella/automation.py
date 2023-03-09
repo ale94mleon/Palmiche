@@ -376,10 +376,10 @@ def main(input_path_dict,
     ligands = [f"LI{chain}" for chain in chains]
     # Create grouplist in the correct order
     grouplist = [[ligand+"_CLOSE_AA",ligand] for ligand in ligands]
-    # Swap the order if needed to keep the correct sign on the distnce
-    if (reverse and pull_coord_vec[-1] > 0) or (not reverse and pull_coord_vec[-1] < 0):
-        for group in grouplist:
-            group[0], group[1] = group[1], group[0]
+    # # Swap the order if needed to keep the correct sign on the distnce
+    # if (reverse and pull_coord_vec[-1] > 0) or (not reverse and pull_coord_vec[-1] < 0):
+    #     for group in grouplist:
+    #         group[0], group[1] = group[1], group[0]
     
     print(
         f"The following window intervals will be constructed:\nmin---{'---'.join([f'[{point}]' for point in pull_middle_points])}---max\n")
