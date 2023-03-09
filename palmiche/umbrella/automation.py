@@ -250,6 +250,7 @@ def main(input_path_dict,
         chains=['A', 'B', 'C', 'D', 'E'],
         # The portein is always the first group and has as name SOLU, so it is fine to create a selection based only on the protein and
         # should work for different ligands as well.
+        CLOSE_AA_radius = 0.4, # This is for the selction of the close aa, by default is 0.4 nm 
         CLOSE_AA_NDX = None, # This is a GROMACS ndx file it must have as many group as chains and the group names must be LI{chain}_CLOSE_AA
         GROMACS_version="2021.4",
         cpu=12,
@@ -472,7 +473,7 @@ def main(input_path_dict,
         for ligand in ligands:
             options += f"\"{ligand}\" resname {ligand};\n"
             if not CLOSE_AA_NDX:
-                options += f"\"{ligand}_CLOSE_AA\" group \"Backbone\" and same residue as within 0.4 of resname {ligand};\n"
+                options += f"\"{ligand}_CLOSE_AA\" group \"Backbone\" and same residue as within {CLOSE_AA_radius} of resname {ligand};\n"
 
         # ==============================================================================
 
