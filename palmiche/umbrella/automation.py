@@ -1306,7 +1306,11 @@ def main(input_path_dict,
 
         # wham_individual_coords = [f"gmx wham -ac -temp {temperature} -zprof0 {pull_distance} -bins 300 -unit kJ -nBootstrap 200 -bs-method hist -is {s} -ix pullx_files.dat -it tpr_files.dat -o {s.split('.')[0]} -hist hist_{s.split('.')[0]} -oiact iact_{s.split('.')[0]}.xvg -bsres bsResult_{s.split('.')[0]}.xvg -bsprof bsProfs_{s.split('.')[0]}.xvg" for s in select_file_names]
         # This is jut to see the histogrma
-        tools.run(f"gmx wham -temp {temperature} -zprof0 {pull_distance} -bins 300 -unit kJ -is coord0_selected.dat -ix pullx_files.dat -it tpr_files.dat -hist hist_coord0_selected -histonly -b 0")
+        if reverse:
+            zprof0 = -pull_distance
+        else:
+            zprof0 = pull_distance
+        tools.run(f"gmx wham -temp {temperature} -zprof0 {zprof0} -bins 300 -unit kJ -is coord0_selected.dat -ix pullx_files.dat -it tpr_files.dat -hist hist_coord0_selected -histonly -b 0")
 
     # !!!! Activate an automatic function that zip/tar all the files, except the xtc, but I need to conserv the directory tree.
     os.chdir(cwd)
