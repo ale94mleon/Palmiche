@@ -632,7 +632,7 @@ for ((i=${{cnt}}; i<${{cntmax}}+1; i++)); do
 done
     """
     jobsh_obj = jobsh.JOB(
-    sbatch_keywords={'job-name':'assamble'},
+    sbatch_keywords={'job-name':'assambly'},
     GROMACS_version=GROMACS_version,
     build_GROMACS_section=GROMACS_section,
     hostname=hostname,

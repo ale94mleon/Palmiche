@@ -301,11 +301,11 @@ def main(windows_path, pullx, ac = 'autocorr.xvg', overwrite = False, reaction_c
 
 
 if __name__ == '__main__':
-    windows_path1 = '/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_O/7e27/sys_MMV007839_Cell_891_SP_param/windows'
-    windows_path2 = '/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q/7e27/sys_MMV007839_Cell_891_SP_param/windows'
-    windows_path3 = '/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_A/7e27/sys_MMV007839_Cell_891_SP_param/windows'
+    windows_path1 = '/home/ale/mnt/smaug-data/simulation/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_O/7e27/sys_MMV007839_Cell_891_SP_param/windows'
+    windows_path2 = '/home/ale/mnt/smaug-data/simulation/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q/7e27/sys_MMV007839_Cell_891_SP_param/windows'
+    windows_path3 = '/home/ale/mnt/smaug-data/simulation/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_A/7e27/sys_MMV007839_Cell_891_SP_param/windows'
 
-    ww = [windows_path3]
+    ww = [windows_path2]
     # main(
     #     windows_path = windows_path,
     #     pullx='production_pullx.xvg',
@@ -321,5 +321,6 @@ if __name__ == '__main__':
     # print(len(autocorr_xvg.multidata))
 
     for i, w in enumerate(ww):
-        a, b = IntegralOfACF(windows_path = w, njobs=12)
-        print(a.shape, b.shape)
+        # a, b = IntegralOfACF(windows_path = w, njobs=12)
+        # print(a.shape, b.shape)
+        plot(w, 'autocorr.xvg')

@@ -79,7 +79,6 @@ def setup_production(
     dt,
     windows,
     pull_coord_vec,
-    reverse,
     annealing,
     tc_grps,
     temperature,

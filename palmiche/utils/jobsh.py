@@ -142,6 +142,13 @@ class JOB:
             'nodes': 1,
             'gpus':1,
         }
+        # It gets sbatch environmental variables in the shape of palmiche_sbatch_{the sbatch keyword} from os.environ
+        for key in os.environ:
+            if key.startswith('palmiche_sbatch_'):
+                sbatch_keyword = key.split('palmiche_sbatch_')[-1]
+                default_sbatch_keywords[sbatch_keyword] = os.environ[key]
+                print(f"Setting sbatch keyword {sbatch_keyword} = {os.environ[key]} from environment")
+
         # This part need to be improved
         if self.hostname == 'smaug' or self.hostname.startswith('fang'):
             default_sbatch_keywords['cpus-per-task'] = 12
@@ -151,14 +158,19 @@ class JOB:
             self.sbatch_keywords['partition'] = 'gpu-hub'#'medium'#'gpu-hub'
             default_sbatch_keywords['exclude'] = 'gwdo[161-180]'
             default_sbatch_keywords['account'] = 'all'
-            default_sbatch_keywords['constraint'] = 'scratch'
+            if not 'constraint' in default_sbatch_keywords:
+                default_sbatch_keywords['constraint'] = 'scratch'
         elif self.hostname.startswith('rarp'):
             default_sbatch_keywords['partition'] = 'uds-hub'
-            default_sbatch_keywords['cpus-per-task'] = 16
             # Feature=Ryzen_3975WX Gres=gpu:A4000:4
             # Feature=XEON_E5_2630v4 Gres=gpu:RTX1070:4
             # Feature=XEON_E5_2630v4 Gres=gpu:RTX1070Ti:4
-            default_sbatch_keywords['constraint'] = 'Ryzen_3975WX'
+            if 'constraint' in default_sbatch_keywords and default_sbatch_keywords['constraint'] == 'XEON_E5_2630v4':
+                default_sbatch_keywords['cpus-per-task'] = 10
+                default_sbatch_keywords['constraint'] = default_sbatch_keywords['constraint']
+            else:
+                default_sbatch_keywords['cpus-per-task'] = 16
+                default_sbatch_keywords['constraint'] = 'Ryzen_3975WX'
         else:
             default_sbatch_keywords['cpus-per-task'] = 12
             default_sbatch_keywords['partition'] = 'deflt'
