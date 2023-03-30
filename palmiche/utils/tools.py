@@ -478,6 +478,8 @@ def launch_wait_check_repeat(partition, jobpaths, logfile, lisfile, jobsh_name, 
     # lisfile = 'production.lis'
     # jobsh_name = 'job.sh'
     # First launch (normal)
+    # I will check for the cpt file based on the logfile name
+    cpt_file = os.path.splitext(logfile) + '.cpt'
     JOBIDs = job_launch_list([os.path.join(path, jobsh_name) for path in jobpaths])
     while len(set(JOBIDs).difference(checkrun(partition=partition))) != len(JOBIDs):
         time.sleep(np.random.randint(20,60))
@@ -488,25 +490,28 @@ def launch_wait_check_repeat(partition, jobpaths, logfile, lisfile, jobsh_name, 
         # Check from the correct end
         print(f"The simulation {os.path.join(path,logfile)} presented a performance of {check.performance}")
         if not check.performance:
-            if logfile_start_datetime:
-                tmp_check = CHECK(os.path.join(path,logfile_start_datetime))
-                daysdiff = check.daysdiff(tmp_check.get_startdatetime_from_log())
-            else:
-                daysdiff = check.daysdiff()
-            # Check if the estimated time is larger than the reservation time in the corresponded partition.
-            if daysdiff:
-                if partition not in maximum_days:
-                    maximum_days[partition] = 2
-                if daysdiff > maximum_days[partition]:
-                    # Get how many time the simulation must be relaunch
-                    repeat = round((daysdiff / maximum_days[partition]) - 1)
-                    if repeat == 0:repeat = 1
-                    # Add path as key and number of repetition as value
-                    jobs2relaunch[path] = repeat
+            if os.path.exists(cpt_file):
+                if logfile_start_datetime:
+                    tmp_check = CHECK(os.path.join(path,logfile_start_datetime))
+                    daysdiff = check.daysdiff(tmp_check.get_startdatetime_from_log())
+                else:
+                    daysdiff = check.daysdiff()
+                # Check if the estimated time is larger than the reservation time in the corresponded partition.
+                if daysdiff:
+                    if partition not in maximum_days:
+                        maximum_days[partition] = 2
+                    if daysdiff > maximum_days[partition]:
+                        # Get how many time the simulation must be relaunch
+                        repeat = round((daysdiff / maximum_days[partition]) - 1)
+                        if repeat == 0:repeat = 1
+                        # Add path as key and number of repetition as value
+                        jobs2relaunch[path] = repeat
+                    else:
+                        print(f'We were not able to guess what is the problem with the run of the job {path}')
                 else:
                     print(f'We were not able to guess what is the problem with the run of the job {path}')
             else:
-                print(f'We were not able to guess what is the problem with the run of the job {path}')
+                print(f'Unable to continue job {path}, {cpt_file} doe not exist or is unaccesible')
     # Only if there are some jobs to relaunch
     if jobs2relaunch:
         while sum(jobs2relaunch.values()):

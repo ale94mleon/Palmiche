@@ -699,7 +699,7 @@ def main(input_path_dict,
                 jobsh_name = 'job.sh',
                 logfile_start_datetime=logfile_start_datetime_pull)
             check = tools.CHECK("pull.log", "pull.lis")
-            if not check.performance:
+            if not check.performance or not os.path.exists('pull.cpt'):
                 raise RuntimeError(f"The pull simulation ended with error. Chek the simulation on {os.getcwd()}")
         print('The pulling simulation finished')
 
