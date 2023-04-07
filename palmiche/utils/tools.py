@@ -479,7 +479,7 @@ def launch_wait_check_repeat(partition, jobpaths, logfile, lisfile, jobsh_name, 
     # jobsh_name = 'job.sh'
     # First launch (normal)
     # I will check for the cpt file based on the logfile name
-    cpt_file = os.path.splitext(logfile) + '.cpt'
+    cpt_file = os.path.splitext(logfile)[0] + '.cpt'
     JOBIDs = job_launch_list([os.path.join(path, jobsh_name) for path in jobpaths])
     while len(set(JOBIDs).difference(checkrun(partition=partition))) != len(JOBIDs):
         time.sleep(np.random.randint(20,60))
