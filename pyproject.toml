@@ -1,6 +1,96 @@
 [build-system]
-requires = [
-    "setuptools >= 54",
-    "wheel",
+requires=[
+	"setuptools>=61.0",
+	"versioningit",
 ]
 build-backend = "setuptools.build_meta"
+
+[project.urls]
+"Hompage" = "https://github.com/ale94mleon/palmiche"
+"Discussions" = "https://github.com/ale94mleon/palmiche/discussions"
+"Documentation" = "https://palmiche.readthedocs.io/en/latest/"
+"Issues" = "https://github.com/ale94mleon/palmiche/issues"
+
+[project]
+name = "palmiche"
+dynamic = ["version"]
+description = "A python package for automation of MD simulations"
+readme = "README.rst"
+
+authors=[
+    {name="Alejandro Martínez-León", email="ale94mleon@gmail.com"},
+]
+
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Operating System :: POSIX :: Linux",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+keywords = [
+    "science",
+    "chemistry",
+    "biology",
+]
+
+requires-python = ">= 3.8 , < 3.10"
+dependencies = [
+    "pubchempy",
+    "tqdm",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "kmodes",
+    "kneed",
+    "uncertainties",
+    "prolif",
+    "scipy",
+    "rdkit",
+    "seaborn",
+    "acpype",
+    "toff",
+    "meeko",
+    "MDAnalysis",
+    "TOFF",
+]
+
+[tool.versioningit]
+default-version = "1+unknown"
+
+[tool.versioningit.format]
+distance = "{base_version}+{distance}.{vcs}{rev}"
+dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
+distance-dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
+
+[tool.versioningit.vcs]
+method = "git" 
+match = ["*"]
+default-tag = "0.0.0"
+
+[tool.versioningit.write]
+file = "src/palmiche/_version.py"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+palmiche = [
+    "data/MDP/*.tar.gz",
+    "data/GROMACS.ff/*.tar.gz", 
+    "data/samples/*.tar.gz",
+]
+
+[project.scripts]
+palmiche_gmxtrjconv = "palmiche.utils.gmxtrjconv:main"
+palmiche_job_launch = "palmiche.utils.tools:job_launch"
+palmiche_do_wahm = "palmiche.umbrella.wham:wham"
