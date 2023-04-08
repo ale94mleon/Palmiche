@@ -40,7 +40,7 @@ keywords = [
     "biology",
 ]
 
-requires-python = ">= 3.8 , < 3.10"
+requires-python = ">= 3.8 , < 3.11"
 dependencies = [
     "pubchempy",
     "tqdm",
