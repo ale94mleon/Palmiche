@@ -351,18 +351,31 @@ class CHECK:
         self.logfile = logfile
         self.lisfile = lisfile
         self.performance = None  #in ns/day, this attribute could be used to check if the simulation ended
+        self.nsteps = None
+        self.final_step = 0
         self.__check_normal_end__()
 
     def __check_normal_end__(self):
         with open(self.logfile, 'r') as f:
             lines = f.readlines()
+
         for i in range(len(lines)):
+            if 'nsteps' in lines[i]:
+                self.nsteps = int(lines[i].split('=')[-1])
+            if lines[i].startswith('           Step           Time'):
+                self.final_step = int(lines[i+1].split()[0])
             if 'Finished mdrun on rank' in lines[i]:
                 try:
                     self.performance = float(lines[i - 1].split()[1])
-                except:
-                    pass
-                break
+                except:pass
+        
+        # last check. It could be that the last part is printed but the job is not finished. Received ter signal
+        if self.nsteps and self.performance:
+            print(self.final_step)
+            if self.final_step < self.nsteps:
+                print(f"({self.logfile}, {self.lisfile}) simulation, even finishing with proper output, only {self.final_step} / {self.nsteps} steps were reached. Therefore, performance = None")
+                self.performance = None
+
 
     def estimated_end_datetime(self):
         """Read an md.lis looking for the last instance of the string with the estimation of the ended time.
@@ -1347,54 +1360,4 @@ class classifier_dist_contacts:
         return closest_frames
 
 if __name__ == '__main__':
-
     pass
-    print(CTE.Kb)
-    #k = aovec([(0,0,1), (0,1,0), (1,0,0)])
-    #deg = 2.5
-    #rad = np.pi*deg/180
-    #n = 0.05
-    #print(get_force_cte(298.15, n))
-    #print(get_sigma(303.15, 500))
-    # now = datetime.datetime.now()
-    #ndx = NDX("/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_J/7e27/sys_MMV007839_Cell_891_SP_param/index.ndx")
-    #print(ndx.data)
-    # check = CHECK("md.log", "md.lis")
-    # print(check.performance)
-    # print(check.estimated_end_datetime())
-    # print(check.daysdiff(now))
-    #print(os.listdir())
-    #cp("test.py", "h/k.py")
-    #print(list_if_file("./"))q
-    #print(os.path.isfile("./*py"))
-    # tpr = '/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_M_annealing/7e27/sys_MMV007839_Cell_891_SP_param/pull.tpr'
-    # xtc = '/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_M_annealing/7e27/sys_MMV007839_Cell_891_SP_param/pull.xtc'
-    # fingerprint_files = [
-    #     '/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_M_annealing/7e27/sys_MMV007839_Cell_891_SP_param/ifp.pkl',
-    #     '/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_M_annealing/7e27/sys_MMV007839_Cell_891_SP_param/ifp_atoms.pkl'
-    # ]
-    # ligand = 'LIA'
-
-    # a = classifier_dist_contacts(tpr, xtc, elapsed_steps=200)
-    # #print(a.data)
-    # #print(a)
-    # #a = classifier_ifp(tpr, xtc, ligand_selection='resname LIA', elapsed_steps = 0, load_fingerprint = True, ifp_file = fingerprint_files[0], n_clusters = 10)
-    # print(a.model.cluster_centers_.shape)
-    # a.cluster(n_clusters=3)
-
-    # print(a.model.cluster_centers_)
-    # print(a.get_closers())
-    # #print(a.get_closers())
-    # #print(a.labels_)
-    # print(KbT(300))
-    # print(get_force_cte(298,1))
-    # d0 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord0_selected.xvg').data
-    # d1 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord1_selected.xvg').data
-    # d2 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord2_selected.xvg').data
-    # d3 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord3_selected.xvg').data
-    # d4 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord4_selected.xvg').data
-    # d5 = xvg.XVG('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_N_ST/7e27/sys_MMV007839_Cell_891_SP_param/windows/coord5_selected.xvg').data
-    # data = [d0, d1, d2, d3, d4, d5]
-    # AlignPoint = 4.5
-    # NumbPoints = 300
-    # print(RSS(data,AlignPoint, NumbPoints = NumbPoints))
