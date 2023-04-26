@@ -371,11 +371,9 @@ class CHECK:
         
         # last check. It could be that the last part is printed but the job is not finished. Received ter signal
         if self.nsteps and self.performance:
-            print(self.final_step)
             if self.final_step < self.nsteps:
                 print(f"({self.logfile}, {self.lisfile}) simulation, even finishing with proper output, only {self.final_step} / {self.nsteps} steps were reached. Therefore, performance = None")
                 self.performance = None
-
 
     def estimated_end_datetime(self):
         """Read an md.lis looking for the last instance of the string with the estimation of the ended time.
@@ -492,7 +490,6 @@ def launch_wait_check_repeat(partition, jobpaths, logfile, lisfile, jobsh_name, 
     # jobsh_name = 'job.sh'
     # First launch (normal)
     # I will check for the cpt file based on the logfile name
-    cpt_file = os.path.splitext(logfile)[0] + '.cpt'
     JOBIDs = job_launch_list([os.path.join(path, jobsh_name) for path in jobpaths])
     while len(set(JOBIDs).difference(checkrun(partition=partition))) != len(JOBIDs):
         time.sleep(np.random.randint(20,60))
@@ -500,6 +497,7 @@ def launch_wait_check_repeat(partition, jobpaths, logfile, lisfile, jobsh_name, 
     jobs2relaunch = {}
     for path in jobpaths:
         check = CHECK(os.path.join(path,logfile), os.path.join(path,lisfile))
+        cpt_file = os.path.join(path, os.path.splitext(logfile)[0] + '.cpt')
         # Check from the correct end
         print(f"The simulation {os.path.join(path,logfile)} presented a performance of {check.performance}")
         if not check.performance:
@@ -624,8 +622,6 @@ def makedirs(path):
 
 def rm(pattern, r = False):
     """
-
-
     Parameters
     ----------
     patterns : string
