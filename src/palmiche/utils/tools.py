@@ -53,7 +53,7 @@ PathLike = Union[os.PathLike, str, bytes]
 
 #=======================================================================================
 class CTE:
-    """Some importnat physical constants
+    """Some important physical constants
     """
     Kb = 8.314462618E-3 #kJ/(mol⋅K) (kNA)
     R = 8.314462618E-3 #kJ/(mol⋅K)

@@ -48,8 +48,9 @@ class dG_corrector:
 
 if __name__ == '__main__':
     import os, glob
-    from palmiche.utils.tools import get_sigma
-    umbrellas = sorted(glob.glob('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q'))
+    from palmiche.utils.tools import get_sigma, list_if_dir
+    path = '/Users/klimt/mnt/HHDs/Backup1/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q/7e27'
+    umbrellas = sorted(list_if_dir('/Users/klimt/mnt/HHDs/Backup1/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q/7e27'))
     ki_experimental = 66E-9
     for umbrella in umbrellas:
         # try:
@@ -59,13 +60,14 @@ if __name__ == '__main__':
             cylinder_force_cte_restraint=500,
             orientation_theta_naught=np.pi/4,
             absolute_temperature=303.15,
-            PmfXvgPath = os.path.join(umbrella, '7e27/BH306 /windows/bsResult_coord0_selected.xvg'),
+            PmfXvgPath = os.path.join(path, umbrella, 'windows/bsResult_coord0_selected.xvg'),
             integrator='simpson',
         )
         dg_corrected, Ki_corrected = corrector()
         # Experimental - theoretical model
         delta_delta_G = -tools.CTE.R*303.15*(np.log(ki_experimental/Ki_corrected))
-        print(f"{os.path.basename(umbrella):>50}: dg_corrected = {dg_corrected:.2f}, Ki_corrected = {Ki_corrected}, delta_delta_G = {delta_delta_G}")
+        # print(f"{os.path.basename(umbrella):>50}: dg_corrected = {dg_corrected:.2f}, Ki_corrected = {Ki_corrected}, delta_delta_G = {delta_delta_G}")
+        print(f"{os.path.basename(umbrella):>20}: dg_corrected [kcal/mol] = {0.239001* dg_corrected:.2f}, ")
 
         # except Exception as e:
         #     print(e)
