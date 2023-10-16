@@ -94,3 +94,4 @@ palmiche = [
 palmiche_gmxtrjconv = "palmiche.utils.gmxtrjconv:main"
 palmiche_job_launch = "palmiche.utils.tools:job_launch"
 palmiche_do_wahm = "palmiche.umbrella.wham:wham"
+palmiche_concat = "palmiche.umbrella.concat:concat_cli"

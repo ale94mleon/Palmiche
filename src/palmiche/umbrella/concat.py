@@ -46,7 +46,7 @@ def main(input_path, conf_file_name, output_path = '.', cpu = 0):
     print("Finished!")
 
 
-if __name__ == '__main__':
+def concat_cli():
 
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawTextHelpFormatter)
