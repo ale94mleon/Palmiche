@@ -1,4 +1,4 @@
-name: palmiche_conda
+name: palmiche
 channels:
   - conda-forge
   - anaconda
@@ -11,7 +11,6 @@ dependencies:
   - python==3.9.*
   - nbsphinx==0.8.7
   - sphinx==4.1.2
-  - vina
   - conda-build
   - openbabel
   # - ambertools
@@ -22,7 +21,7 @@ dependencies:
     - tqdm
     - numpy
     - pandas
-    - sklearn
+    - scikit-learn
     - kmodes
     - kneed
     - uncertainties

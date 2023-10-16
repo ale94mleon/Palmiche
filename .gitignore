@@ -11,3 +11,4 @@ simutemp/small
 public
 palmiche.egg-info
 dist
+.DS_Store
