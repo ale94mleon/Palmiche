@@ -801,11 +801,10 @@ class Mol2:
     -------
     .. ipython:: python
 
-        from palmiche.utils.tools import Mol2
-        from palmiche import home
+        from palmiche.utils.tools import Mol2, get_palmiche_data
         import os
-        mol2_path = home.home(os.path.join("samples","mol2", "test.mol2"))
-        molecule = Mol2(mol2_path)
+        get_palmiche_data(file="samples/mol2.tar.gz", out_dir='.')
+        molecule = Mol2('mol2/test.mol2')
         for atom in molecule.mol.GetAtoms():
             # Two extra properties added to the atom class
             print(atom.GetProp('atom_type'), atom.GetDoubleProp('charge'))
