@@ -803,10 +803,11 @@ class Mol2:
 
         from palmiche.utils.tools import Mol2
         from palmiche import home
-        mol2_path = home(os.path.join("sample", "test.mol2"))
+        import os
+        mol2_path = home.home(os.path.join("samples","mol2", "test.mol2"))
         molecule = Mol2(mol2_path)
         for atom in molecule.mol.GetAtoms():
-            # Two etra properties added to the atom class
+            # Two extra properties added to the atom class
             print(atom.GetProp('atom_type'), atom.GetDoubleProp('charge'))
     """
     def __init__(self, mol2_path:PathLike) -> None:
@@ -822,12 +823,15 @@ class Mol2:
 
         """
         self.mol = Chem.MolFromMol2File(self.mol2_path, removeHs = False)
-        if not self.mol:
+        # Trying first conversion
+        if self.mol:
+                atom_types = [atom.GetSymbol() for atom in self.mol.GetAtoms()]
+        # Trying first conversion
+        else:
             print('Trying with atom types change...')
             with open(self.mol2_path, 'r') as f:
                 lines = f.readlines()
                 atom_types = []
-                user_formal_charges = []
                 for i in range(len(lines)):
                     if lines[i].startswith('@<TRIPOS>ATOM'):
                         for j in range(i+1, len(lines)):
@@ -835,19 +839,31 @@ class Mol2:
                                 break
                             line_split = lines[j].split()
                             atom_types.append(line_split[5])
-                            user_formal_charges.append(float(line_split[-1]))
+                            # Remove all digits of atom and set the atom as atom type
                             line_split[5] = line_split[1].translate({ord(i): None for i in '0123456789'})
                             lines[j] = '\t'.join(line_split) + '\n'
                         break
             string = "".join(lines)
             self.mol = Chem.MolFromMol2Block(string, removeHs = False)
-            if self.mol:
-                for atom, atom_type, user_formal_charge in zip(self.mol.GetAtoms(), atom_types, user_formal_charges):
-                    atom.SetDoubleProp('charge', float(user_formal_charge))
-                    atom.SetProp('atom_type',atom_type)
-                print("The mol was created succesfully!")
-            else:
-                print("\nIt is not possible to convert the mol2 to RDKit molecule.\n")
+
+        if self.mol:
+            with open(self.mol2_path, 'r') as f:
+                lines = f.readlines()
+            user_formal_charges = []
+            for i in range(len(lines)):
+                if lines[i].startswith('@<TRIPOS>ATOM'):
+                    for j in range(i+1, len(lines)):
+                        if lines[j].startswith('@'):
+                            break
+                        line_split = lines[j].split()
+                        user_formal_charges.append(float(line_split[-1]))
+                    break
+            for atom, atom_type, user_formal_charge in zip(self.mol.GetAtoms(), atom_types, user_formal_charges):
+                atom.SetDoubleProp('charge', float(user_formal_charge))
+                atom.SetProp('atom_type',atom_type)
+            print("The mol was created succesfully!")
+        else:
+            print("\nIt is not possible to convert the mol2 to RDKit molecule.\n")
 
     def AddConformer(self, ref_mol:Chem.rdchem.Mol) -> None:
         """Add to self.mol the conformation of ref_mol.
