@@ -146,7 +146,8 @@ def main(BoundRegion, radium, sigma, absolute_temperature, PmfXvgPath, integrato
 if __name__ == '__main__':
     import os, glob
     from palmiche.utils.tools import get_sigma
-    umbrellas = sorted(glob.glob('/home/ale/mnt/smaug/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q*'))
+    root = '/Users/klimt/mnt/HHDs/Backup1/MD/NEW/docking_min_equi/umbrella_iteration'
+    umbrellas = sorted(glob.glob(f'{root}/umbrella_Q*'))
 
     for umbrella in umbrellas:
         try:

@@ -49,8 +49,9 @@ class dG_corrector:
 if __name__ == '__main__':
     import os, glob
     from palmiche.utils.tools import get_sigma, list_if_dir
-    path = '/Users/klimt/mnt/HHDs/Backup1/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q/7e27'
-    umbrellas = sorted(list_if_dir('/Users/klimt/mnt/HHDs/Backup1/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q/7e27'))
+    path = '/Users/klimt/mnt/HHDs/Backup1/MD/NEW/docking_min_equi/umbrella_iteration/umbrella_Q_REVERSE/7e27'
+    umbrellas = sorted(list_if_dir(path))
+    print(umbrellas)
     ki_experimental = 66E-9
     for umbrella in umbrellas:
         # try:

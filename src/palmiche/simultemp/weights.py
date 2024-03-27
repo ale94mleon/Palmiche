@@ -126,18 +126,18 @@ def AleWeights(temperatures, internal_energies, target_temperatures, integrator 
 
     return weights
 
-def PandeWeights(temperatures, energies, alpha = None, weight_GROMACS_format = True):
+def PandeWeights(temperatures, energies, alpha=None, weight_GROMACS_format=True):
     # Here explain the definition of the gromacs weight
     # https://manual.gromacs.org/documentation/2019/reference-manual/algorithms/expanded-ensemble.html
-    # The use of the alpha is not completly right from a theretical point of view for this method
+    # The use of the alpha is not completely right from a theoretical point of view for this method
     assert len(temperatures) == len(energies), "temperatures and energies must have the same number of elements"
     # Deffining the coefficient matrix
-    M = 1*np.eye(len(temperatures), k = 1, dtype=int)
+    M = 1*np.eye(len(temperatures), k=1, dtype=int)
     np.fill_diagonal(M, -1)
-    M[-1] = np.ones(len(temperatures), dtype = int)
+    M[-1] = np.ones(len(temperatures), dtype=int)
     # Solution Vector
     b = np.zeros(len(temperatures))
-    # Initialize b[0] dependign if alpha was selected
+    # Initialize b[0] depending if alpha was selected
     if alpha:
         gamma = alpha/(1-alpha)
         b[0] = 0.5*(tools.beta(temperatures[1]) - tools.beta(temperatures[0]))*(energies[0] + energies[1]) - np.log(gamma*(len(temperatures) - 1))
